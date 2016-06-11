@@ -7,31 +7,22 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.imageio.ImageIO;
-
-import level.Level;
 
 public class Sprite {
 
 	public final int SIZE_X, SIZE_Y;
 	protected int x, y;
-	public int[] pixels;
+	protected int[] pixels;
 	protected SpriteSheet sheet;
 	protected String path;
 
 	public static Sprite voidSprite = new Sprite(16, 0x1b87e0);
-
-	// Projectile sprites
-	public static Sprite fireball_base = new Sprite(60, 0, 0, SpriteSheet.fireball);
-	public static Sprite fireball_small = new Sprite(30, 30, fireball_base);
-	public static Sprite[] fireball = roll(fireball_small, 12);
-
-	//public static Sprite fireball = new Sprite(60, 0, 0, SpriteSheet.fireball);
-
-	// Spawn level sprites
-	public static Sprite spawnMap_base = new Sprite(1600, 0, 0, SpriteSheet.map);
-	public static Sprite spawnMap = new Sprite(800, 800, spawnMap_base);
 
 	/**
 	 * Creates a sprite from a sprite sheet
@@ -91,6 +82,17 @@ public class Sprite {
 		loadFromPath();
 	}
 
+	public Sprite(Sprite sprite) {
+		SIZE_X = sprite.SIZE_X;
+		SIZE_Y = sprite.SIZE_Y;
+		x = sprite.x;
+		y = sprite.y;
+		pixels = new int[sprite.pixels.length];
+		System.arraycopy(sprite.pixels, 0, pixels, 0, sprite.pixels.length);
+		sheet = sprite.sheet;
+		path = sprite.path;
+	}
+
 	public Sprite(int sizex, int sizey, Sprite sprite) {
 		SIZE_X = sizex;
 		SIZE_Y = sizey;
@@ -137,6 +139,225 @@ public class Sprite {
 			for (int x = 0; x < sizex; x++)
 				pixels[y * sizex + x] = (new Color(data[y * sizex * 4 + x * 4 + 1], data[y * sizex * 4 + x * 4 + 2], data[y * sizex * 4 + x * 4 + 3], data[y * sizex * 4 + x * 4]).hashCode());
 		return pixels;
+	}
+
+	protected int[] getColorsFromData(int[] data, int sizex, int sizey) {
+		ArrayList<Integer> colors = new ArrayList<Integer>();
+		for (int y = 0; y < sizey; y++)
+			for (int x = 0; x < sizex; x++) {
+				int color = (new Color(data[y * sizex * 4 + x * 4 + 1], data[y * sizex * 4 + x * 4 + 2], data[y * sizex * 4 + x * 4 + 3], data[y * sizex * 4 + x * 4]).hashCode());
+				if (!colors.contains(new Integer(color))) colors.add(new Integer(color));
+			}
+		int[] ret = new int[colors.size()];
+		for (int k = 0; k < colors.size(); k++)
+			ret[k] = colors.get(k);
+		return ret;
+	}
+
+	protected int[][] getDensityColorsFromData(int[] data, int sizex, int sizey) {
+		ArrayList<Integer> colors = new ArrayList<Integer>();
+		ArrayList<Integer> density = new ArrayList<Integer>();
+		for (int y = 0; y < sizey; y++)
+			for (int x = 0; x < sizex; x++) {
+				int color = (new Color(data[y * sizex * 4 + x * 4 + 1], data[y * sizex * 4 + x * 4 + 2], data[y * sizex * 4 + x * 4 + 3], data[y * sizex * 4 + x * 4]).hashCode());
+				if (!colors.contains(new Integer(color))) {
+					colors.add(new Integer(color));
+					density.add(new Integer(1));
+				} else
+					density.set(colors.indexOf(new Integer(color)), new Integer(density.get(colors.indexOf(new Integer(color))).intValue() + 1));
+			}
+		int[][] ret = new int[2][colors.size()];
+		for (int k = 0; k < colors.size(); k++) {
+			ret[0][k] = colors.get(k);
+			ret[1][k] = density.get(k);
+		}
+		return ret;
+	}
+
+	public int[] getColors() {
+		return getColorsFromData(getData(this), SIZE_X, SIZE_Y);
+	}
+
+	public int[] getTopColors() {
+		return getTopColors(-1, new int[] {}, 0, 0, false);
+	}
+
+	public int[] getTopColors(int freq) {
+		return getTopColors(freq, new int[] {}, 0, 0, false);
+	}
+
+	public int[] getTopColors(int freq, int[] include) {
+		return getTopColors(freq, include, 0, 0, false);
+	}
+
+	public int[] getTopColors(int freq, int[] include, int skip) {
+		return getTopColors(freq, include, skip, 0, false);
+	}
+
+	public int[] getTopColors(int freq, int[] include, int skip, int alpha, boolean alphaIgnore) {
+		int[] ret = null;
+		int size = freq;
+		if (freq != -1) ret = new int[freq];
+
+		int[][] colorDensity = getDensityColorsFromData(getData(this), SIZE_X, SIZE_Y);
+		ArrayList<Integer> density = new ArrayList<Integer>();
+		for (int k = 0; k < colorDensity[1].length; k++)
+			if (!alphaIgnore || colorDensity[0][k] != alpha) density.add(colorDensity[1][k]);
+		ArrayList<Integer> colors = new ArrayList<Integer>();
+		for (int k = 0; k < colorDensity[0].length; k++)
+			if (!alphaIgnore || colorDensity[0][k] != alpha) colors.add(colorDensity[0][k]);
+
+		if (freq == -1) {
+			size = colorDensity[0].length;
+			ret = new int[size];
+		}
+
+		Integer max = Collections.max(density);
+		int i = density.indexOf(new Integer(max));
+		ret[0] = colors.remove(i).intValue();
+		density.remove(i);
+
+		for (int n = 1; n <= include.length; n++) {
+			if (n >= ret.length) return ret;
+			ret[n] = include[n - 1];
+			size--;
+			if (size == 0) return ret;
+		}
+
+		for (int n = 0; n < skip; n++) {
+			max = Collections.max(density);
+			i = density.indexOf(new Integer(max));
+			colors.remove(i).intValue();
+			density.remove(i);
+		}
+
+		for (int n = include.length + 1; n < size; n++) {
+			max = Collections.max(density);
+			i = density.indexOf(new Integer(max));
+			ret[n] = colors.remove(i).intValue();
+			density.remove(i);
+		}
+
+		return ret;
+	}
+
+	public String[] getHexColors() {
+		ArrayList<String> colors = new ArrayList<String>();
+		for (int i : getColorsFromData(getData(this), SIZE_X, SIZE_Y))
+			if (!colors.contains(Integer.toHexString(i))) colors.add(Integer.toHexString(i));
+
+		return colors.toArray(new String[0]);
+	}
+
+	public String[] getTopHexColors(int freq) {
+		String[] ret = new String[freq];
+
+		int[][] colorDensity = getDensityColorsFromData(getData(this), SIZE_X, SIZE_Y);
+		ArrayList<Integer> density = new ArrayList<Integer>();
+		for (int k = 0; k < colorDensity[1].length; k++)
+			density.add(colorDensity[1][k]);
+
+		ArrayList<Integer> colors = new ArrayList<Integer>();
+		for (int k = 0; k < colorDensity[0].length; k++)
+			colors.add(colorDensity[0][k]);
+
+		for (int n = 0; n < freq; n++) {
+			Integer max = Collections.max(density);
+			int i = density.indexOf(new Integer(max));
+			ret[n] = Integer.toHexString(colors.remove(i).intValue());
+			density.remove(i);
+		}
+
+		return ret;
+	}
+
+	public static Sprite changeColorSkin(Sprite s, int dr, int dg, int db, int[] exclude) {
+		Sprite sprite = new Sprite(s.SIZE_X, s.SIZE_Y, 0);
+		for (int i = 0; i < sprite.SIZE_X; i++) {
+			for (int j = 0; j < sprite.SIZE_Y; j++) {
+
+				Color color = new Color(s.pixels[i + j * sprite.SIZE_X], true);
+				int r = (color.getRed() + dr);
+				int g = (color.getGreen() + dg);
+				int b = (color.getBlue() + db);
+				if (r > 255) r = 255;
+				if (r < 0) r = 0;
+				if (g > 255) g = 255;
+				if (g < 0) g = 0;
+				if (b > 255) b = 255;
+				if (b < 0) b = 0;
+
+				int ncolor = new Color(r, g, b, color.getAlpha()).getRGB();
+
+				boolean found = false;
+				for (int x : exclude)
+					if (x == color.getRGB()) found = true;
+				
+				if (!found)
+					sprite.pixels[i + j * sprite.SIZE_X] = ncolor;
+				else
+					sprite.pixels[i + j * sprite.SIZE_X] = color.getRGB();
+			}
+		}
+		return sprite;
+	}
+
+	public static Sprite changeColorSkin(Sprite s, int dr, int dg, int db) {
+		Sprite sprite = new Sprite(s.SIZE_X, s.SIZE_Y, 0);
+		for (int i = 0; i < sprite.SIZE_X; i++) {
+			for (int j = 0; j < sprite.SIZE_Y; j++) {
+
+				Color color = new Color(s.pixels[i + j * sprite.SIZE_X], true);
+				int r = (color.getRed() + dr);
+				int g = (color.getGreen() + dg);
+				int b = (color.getBlue() + db);
+				if (r > 255) r = 255;
+				if (r < 0) r = 0;
+				if (g > 255) g = 255;
+				if (g < 0) g = 0;
+				if (b > 255) b = 255;
+				if (b < 0) b = 0;
+
+				sprite.pixels[i + j * sprite.SIZE_X] = new Color(r, g, b, color.getAlpha()).getRGB();
+			}
+		}
+		return sprite;
+	}
+
+	public static Sprite[] changeColorSkin(Sprite[] s, int dr, int dg, int db, int[] exclude) {
+		Sprite[] sprite = new Sprite[s.length];
+		for (int i = 0; i < sprite.length; i++) {
+			sprite[i] = changeColorSkin(s[i], dr, dg, db, exclude);
+		}
+		return sprite;
+	}
+
+	public static Sprite[] changeColorSkin(Sprite[] s, int dr, int dg, int db) {
+		Sprite[] sprite = new Sprite[s.length];
+		for (int i = 0; i < sprite.length; i++) {
+			sprite[i] = changeColorSkin(s[i], dr, dg, db);
+		}
+		return sprite;
+	}
+
+	public static Sprite[][] changeColorSkin(Sprite[][] s, int dr, int dg, int db, int[] exclude) {
+		Sprite[][] sprite = new Sprite[s.length][s[0].length];
+		for (int i = 0; i < sprite.length; i++) {
+			for (int j = 0; j < sprite[0].length; j++) {
+				sprite[i][j] = changeColorSkin(s[i][j], dr, dg, db, exclude);
+			}
+		}
+		return sprite;
+	}
+
+	public static Sprite[][] changeColorSkin(Sprite[][] s, int dr, int dg, int db) {
+		Sprite[][] sprite = new Sprite[s.length][s[0].length];
+		for (int i = 0; i < sprite.length; i++) {
+			for (int j = 0; j < sprite[0].length; j++) {
+				sprite[i][j] = changeColorSkin(s[i][j], dr, dg, db);
+			}
+		}
+		return sprite;
 	}
 
 	protected static Sprite rotateSprite(Sprite s, double angle) {
@@ -199,6 +420,21 @@ public class Sprite {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		return x * sin + y * cos;
+	}
+
+	protected static Sprite replaceColor(Sprite s, int colorOld, int colorNew) {
+		Sprite sprite = new Sprite(s);
+		for (int k = 0; k < sprite.pixels.length; k++)
+			if (sprite.pixels[k] == colorOld) sprite.pixels[k] = colorNew;
+		return sprite;
+	}
+
+	protected static Sprite replaceColors(Sprite s, int[] oldColors, int[] newColors) {
+		Sprite sprite = new Sprite(s);
+		for (int c = 0; c < oldColors.length; c++)
+			if (c < newColors.length) for (int k = 0; k < sprite.pixels.length; k++)
+				if (sprite.pixels[k] == oldColors[c]) sprite.pixels[k] = newColors[c];
+		return sprite;
 	}
 
 	/**

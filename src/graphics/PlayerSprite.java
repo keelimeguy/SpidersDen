@@ -1,5 +1,7 @@
 package graphics;
 
+import java.util.ArrayList;
+
 public class PlayerSprite {
 	// Player sprites:
 

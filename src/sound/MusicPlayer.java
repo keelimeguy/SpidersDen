@@ -6,7 +6,11 @@ package sound;
  * with edits by keelimeguy
  */
 
+import game.Game;
+
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -27,6 +31,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class MusicPlayer extends Thread implements LineListener {
 
+	private URL location = null;
+	private File file = null;
+	
 	/**
 	 * this flag indicates whether the playback completes or not.
 	 */
@@ -49,8 +56,12 @@ public class MusicPlayer extends Thread implements LineListener {
 		//File audioFile = new File(audioFilePath);
 
 		try {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(getClass().getResource(audioFilePath));//audioFile);
-
+			if (location == null)
+				location = Game.class.getProtectionDomain().getCodeSource().getLocation();
+			if (file == null)
+				file = new File(location.getFile()).getParentFile();
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream((new File(file + audioFilePath)).toURI().toURL());//audioFile);
+			System.out.println("Playing: " + (new File(file + audioFilePath)).toString());
 			AudioFormat format = audioStream.getFormat();
 
 			DataLine.Info info = new DataLine.Info(Clip.class, format);
@@ -102,6 +113,9 @@ public class MusicPlayer extends Thread implements LineListener {
 		} catch (IOException ex) {
 			System.out.println("Error playing the audio file.");
 			ex.printStackTrace();
+		} catch (Exception e){
+			System.out.println("Error playing the audio file.");
+			e.printStackTrace();
 		}
 
 	}
@@ -134,7 +148,8 @@ public class MusicPlayer extends Thread implements LineListener {
 	public void reset() {
 		reset = true;
 		try {
-			Thread.sleep(22);
+			System.out.println("RESET");
+			Thread.sleep(2);
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		}

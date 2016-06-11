@@ -6,16 +6,16 @@ import graphics.Tileset;
 
 public class BasicTile extends Block {
 
-	protected boolean isSolid = false;
+	protected int solidType = SolidType.NONE;
 
 	/**
 	 * Creates a new BasicTile.
 	 * @param sprite : The sprite of the tile.
-	 * @param isSolid : True if the tile will be solid, false otherwise.
+	 * @param solidType : How the player will collide with the tile.
 	 */
-	public BasicTile(Sprite sprite, boolean isSolid) {
+	public BasicTile(Sprite sprite, int solidType) {
 		super(sprite);
-		this.isSolid = isSolid;
+		this.solidType = solidType;
 	}
 
 	public BasicTile(Sprite sprite) {
@@ -25,8 +25,8 @@ public class BasicTile extends Block {
 	public BasicTile(int x, int y, int width, int height, int groundId, int resId, Tileset tileset) {
 		super(x, y, width, height, groundId, resId, Sprite.voidSprite);
 
-		if (groundId < tileset.tiles.length) sprite = tileset.tiles[groundId];
-		if (resId > 0) isSolid = true;
+		if (groundId < tileset.getTiles().length) sprite = tileset.getTiles()[groundId];
+		solidType = resId;
 	}
 
 	public void render(int x, int y, Screen screen) {
@@ -35,6 +35,10 @@ public class BasicTile extends Block {
 	}
 
 	public boolean solid() {
-		return isSolid;
+		return solidType > 0;
+	}
+
+	public int solidType() {
+		return solidType;
 	}
 }

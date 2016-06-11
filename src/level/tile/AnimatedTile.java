@@ -10,25 +10,25 @@ import graphics.Tileset;
 public class AnimatedTile extends Tile {
 
 	protected int curFrame = 0;
-	protected boolean[] isSolid;
+	protected int[] solidType;
 	protected Sprite[] sprites;
 
 	/**
 	 * Creates a new BasicTile.
 	 * @param sprite : The sprite of the tile.
-	 * @param isSolid : True if the tile will be solid, false otherwise.
+	 * @param solidType : How the player will collide with the tile.
 	 */
-	public AnimatedTile(Sprite[] sprites, boolean[] solidFrames) {
+	public AnimatedTile(Sprite[] sprites, int[] solidFrames) {
 		super(sprites[0]);
-		this.isSolid = solidFrames;
+		this.solidType = solidFrames;
 		this.sprites = sprites;
 	}
 
 	public AnimatedTile(Sprite[] sprites) {
 		super(sprites[0]);
-		isSolid = new boolean[sprites.length];
+		solidType = new int[sprites.length];
 		for (int i = 0; i < sprites.length; i++)
-			isSolid[i] = false;
+			solidType[i] = -1;
 		this.sprites = sprites;
 	}
 
@@ -36,11 +36,11 @@ public class AnimatedTile extends Tile {
 		super(x, y, width, height, groundId[0][x + y * arrWidth], resId[0][x + y * arrWidth], tileset);
 		sprites = new Sprite[groundId.length];
 		for (int i = 0; i < groundId.length; i++) {
-			if (groundId[i][x + y * arrWidth] < tileset.tiles.length) sprites[i] = tileset.tiles[groundId[i][x + y * arrWidth]];
+			if (groundId[i][x + y * arrWidth] < tileset.getTiles().length) sprites[i] = tileset.getTiles()[groundId[i][x + y * arrWidth]];
 		}
-		isSolid = new boolean[resId.length];
+		solidType = new int[resId.length];
 		for (int i = 0; i < resId.length; i++)
-			if (resId[i][x + y * arrWidth] > 0) isSolid[i] = true;
+			solidType[i] = resId[i][x + y * arrWidth];
 		this.curFrame = curFrame % sprites.length;
 		sprite = sprites[curFrame];
 	}
@@ -56,6 +56,10 @@ public class AnimatedTile extends Tile {
 	}
 
 	public boolean solid() {
-		return isSolid[curFrame];
+		return solidType[curFrame] > 0;
+	}
+
+	public int solidType() {
+		return solidType[curFrame];
 	}
 }

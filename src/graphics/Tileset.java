@@ -13,7 +13,7 @@ import level.Level;
 
 public class Tileset {
 
-	public Sprite[] tiles;
+	protected Sprite[] tiles;
 
 	public static Tileset tilesetGroundReal = new Tileset("/Res/Landscape/Textures/tileset_ground_real.png", 16, 32, 4, 6);
 	public static Tileset tilesetForest = new Tileset("/Res/Landscape/Textures/tileset_forest.png", 8, 40, 6, 8);
@@ -38,6 +38,9 @@ public class Tileset {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public Sprite[] getTiles() {
+		return tiles;
 	}
 }

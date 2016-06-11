@@ -13,12 +13,15 @@ import level.Level;
 
 public class SpriteSheet {
 
-	private String path;
+	protected String path;
 	public final int SIZE_X, SIZE_Y;
-	public int[] pixels;
+	protected final int[] pixels;
 
 	public static SpriteSheet map = new SpriteSheet("/Res/Maps/citybackground.bmp", 1600, 1600);
 	public static SpriteSheet flame = new SpriteSheet("/Res/Sprites/flame.png", 384, 256);
+	public static SpriteSheet spiderAtk = new SpriteSheet("/Res/Sprites/spider_atk.png", 1024, 768);
+	public static SpriteSheet spiderWalk = new SpriteSheet("/Res/Sprites/spider_walk.png", 1280, 768);
+	public static SpriteSheet spiderDeath = new SpriteSheet("/Res/Sprites/spider_death.png", 1024, 192);
 	public static SpriteSheet devil = new SpriteSheet("/Res/Sprites/devil_sm.png", 96, 96);
 	public static SpriteSheet brainBeast = new SpriteSheet("/Res/Sprites/brain_beast.png", 192, 288);
 	public static SpriteSheet fireball = new SpriteSheet("/Res/Sprites/fireball_lg.bmp", 300, 60);
@@ -39,7 +42,7 @@ public class SpriteSheet {
 	/**
 	 * Loads a sprite sheet from the image pointed to by the path
 	 */
-	private void load() {
+	protected void load() {
 
 		try {
 			URL location = Game.class.getProtectionDomain().getCodeSource().getLocation();

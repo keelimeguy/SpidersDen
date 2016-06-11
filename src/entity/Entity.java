@@ -1,5 +1,6 @@
 package entity;
 
+import game.Game;
 import graphics.Screen;
 
 import java.util.Random;
@@ -8,12 +9,12 @@ import level.Level;
 
 public abstract class Entity {
 
-	public int x, y;
-	private boolean removed = false;
+	protected int x, y;
+	protected boolean removed = false;
 	protected Level level;
 	protected final Random random = new Random();
 
-	public void update() {
+	public void update(Game game) {
 	}
 
 	public void render(Screen screen) {
@@ -24,6 +25,14 @@ public abstract class Entity {
 	 */
 	public void remove() {
 		removed = true;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
 	}
 
 	/**

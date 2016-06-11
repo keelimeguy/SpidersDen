@@ -3,6 +3,7 @@ package game;
 import graphics.Screen;
 import input.Keyboard;
 import input.Mouse;
+import input.ai.SpiderAI;
 
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -19,8 +20,9 @@ import sound.MusicPlayer;
 import sound.SoundPlayer;
 import entity.mob.Mob;
 import entity.mob.Player;
+import entity.mob.Spider;
 
-public class Game extends Canvas implements Runnable {
+public class GameTest extends Game implements Runnable {
 	private static final long serialVersionUID = 1L;
 
 	private static int width = 300;
@@ -48,7 +50,7 @@ public class Game extends Canvas implements Runnable {
 	/**
 	 * Initiates the necessary variables of the game
 	 */
-	public Game() {
+	public GameTest() {
 		Dimension size = new Dimension(width * scale, height * scale);
 		setPreferredSize(size);
 
@@ -73,6 +75,7 @@ public class Game extends Canvas implements Runnable {
 		player = new Player(3 << 4, 3 << 4, key);
 		level.empty();
 		player.init(level);
+		level.add(new Spider(8 << 4, 7 << 4, new SpiderAI(level, null, player)));
 	}
 
 	/**
@@ -137,8 +140,8 @@ public class Game extends Canvas implements Runnable {
 		int frames = 0, updates = 0;
 		requestFocus();
 
-		String audioFilePath = "/Res/Music/funky.wav";
-		snd.playMusic(audioFilePath, LoopStart.FUNKY, -1);
+		String audioFilePath = "/Res/Music/child.wav";
+		snd.playMusic(audioFilePath, LoopStart.CHILD, -1);
 
 		// The game loop
 		while (running) {
@@ -180,6 +183,22 @@ public class Game extends Canvas implements Runnable {
 
 		if (anim % speed == speed - 1) step++;
 		if (key.shift && step >= 1) {
+			if (level == LevelData.test) {
+				String audioFilePath = "/Res/Music/epic.wav";
+				snd.reset();
+				snd.playMusic(audioFilePath, LoopStart.EPIC, -1);
+				level = LevelData.fire;
+			} else if (level == LevelData.fire) {
+				String audioFilePath = "/Res/Music/funky.wav";
+				snd.reset();
+				snd.playMusic(audioFilePath, LoopStart.FUNKY, -1);
+				level = LevelData.water;
+			} else if (level == LevelData.water) {
+				String audioFilePath = "/Res/Music/child.wav";
+				snd.reset();
+				snd.playMusic(audioFilePath, LoopStart.CHILD, -1);
+				level = LevelData.test;
+			}
 			step = anim = 0;
 			define();
 		}
@@ -232,9 +251,9 @@ public class Game extends Canvas implements Runnable {
 	public static void main(String[] args) {
 		System.setProperty("sun.awt.noerasebackground", "true");
 		// Create the game
-		Game game = new Game();
+		GameTest game = new GameTest();
 		game.frame.setResizable(true);
-		game.frame.setTitle(Game.title);
+		game.frame.setTitle(GameTest.title);
 		game.frame.add(game);
 		game.frame.pack();
 		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

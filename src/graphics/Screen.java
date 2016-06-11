@@ -5,10 +5,10 @@ import entity.projectile.Projectile;
 
 public class Screen {
 
-	public int width, height;
-	public int[] pixels;
+	private int width, height;
+	private int[] pixels;
 
-	public int xOffset, yOffset;
+	private int xOffset, yOffset;
 
 	/**
 	 * Creates a screen of a given width and height
@@ -29,6 +29,26 @@ public class Screen {
 		for (int i = 0; i < pixels.length; i++) {
 			pixels[i] = color;
 		}
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public int[] getPixels() {
+		return pixels;
+	}
+
+	public int getXOffset() {
+		return xOffset;
+	}
+
+	public int getYOffset() {
+		return yOffset;
 	}
 
 	/**
@@ -60,7 +80,6 @@ public class Screen {
 		// Updates the position given the screen offset
 		yp -= yOffset;
 		xp -= xOffset;
-
 		// Draws the tile pixels to the screen at the appropriate position
 		for (int y = 0; y < tile.sprite.SIZE_Y; y++) {
 			int ya = y + yp;
@@ -129,7 +148,7 @@ public class Screen {
 			}
 		}
 	}
-	
+
 	public void renderMob(int xp, int yp, Sprite sprite, int flip) {
 
 		// Updates the position given the screen offset
@@ -173,6 +192,7 @@ public class Screen {
 
 	public void setPixel(int col, int xa, int ya) {
 		// If the color is 0xFF00FF don't render that pixel
+		if (xa + ya * width >= pixels.length || xa + ya * width < 0) return;
 		if (col != 0xffff00ff && (col | 0x11ffffff) == 0xffffffff)
 			pixels[xa + ya * width] = col;
 

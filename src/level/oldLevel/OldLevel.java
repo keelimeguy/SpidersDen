@@ -1,13 +1,13 @@
 package level.oldLevel;
 
-import entity.Entity;
-import entity.projectile.Projectile;
-import graphics.Screen;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import level.tile.Block;
+import entity.Entity;
+import entity.projectile.Projectile;
+import game.Game;
+import graphics.Screen;
 
 public abstract class OldLevel {
 
@@ -41,7 +41,6 @@ public abstract class OldLevel {
 		generateLevel();
 	}
 
-	
 	protected void generateLevel() {
 	}
 
@@ -59,14 +58,14 @@ public abstract class OldLevel {
 	/**
 	 * Updates the level by updating every entity within the level.
 	 */
-	public void update() {
+	public void update(Game game) {
 
 		for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).update();
+			entities.get(i).update(game);
 		}
 
 		for (int i = 0; i < projectiles.size(); i++) {
-			projectiles.get(i).update();
+			projectiles.get(i).update(game);
 		}
 	}
 

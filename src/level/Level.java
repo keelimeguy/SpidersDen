@@ -1,56 +1,29 @@
 package level;
 
-import java.io.File;
-import java.net.URL;
+import entity.Entity;
+import entity.projectile.Projectile;
+import game.Game;
+import graphics.Screen;
+import graphics.Tileset;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import level.tile.AnimatedTile;
 import level.tile.BasicTile;
 import level.tile.Block;
-import entity.Entity;
-import entity.projectile.Projectile;
-import graphics.Screen;
-import graphics.Tileset;
+import level.tile.SolidType;
 
 public class Level {
 
-	public static Level water = new Level(new int[][] { new int[] { 48, 61, 48, 49, 0, 24, 25, 1, 48, 49, 66, 55, 54, 55, 12, 48, 49, 13, 54, 55, 60, 61, 60, 61, 18, 54, 55, 19, 48, 49, 66, 67, 66, 67, 6, 30, 31, 7, 54, 55, 192, 216, 217, 193, 48, 49, 72, 73, 48, 49, 204, 48, 49, 205, 54, 43, 42, 79, 54, 55, 210, 54, 55, 211, 48, 37, 36, 49, 48, 49, 198, 222, 223, 199, 54, 55, 54, 91, 54, 55, 48, 49, 48, 49, 48, 49, 48, 235, 234, 49, 54, 55, 54, 55, 54, 55, 54, 229, 228, 55 },
-			new int[] { 50, 51, 50, 51, 2, 26, 27, 3, 50, 51, 56, 57, 56, 57, 14, 50, 51, 15, 56, 57, 50, 51, 50, 51, 20, 56, 57, 21, 50, 51, 56, 57, 56, 57, 8, 32, 33, 9, 56, 57, 194, 218, 219, 195, 50, 51, 50, 51, 50, 51, 206, 50, 51, 207, 56, 45, 44, 57, 56, 57, 212, 56, 57, 213, 50, 39, 38, 51, 50, 51, 200, 224, 225, 201, 56, 57, 56, 57, 56, 57, 50, 51, 50, 51, 50, 51, 50, 237, 236, 51, 56, 57, 56, 57, 56, 57, 56, 231, 230, 57 },
-			new int[] { 52, 53, 52, 53, 4, 28, 29, 5, 52, 53, 58, 59, 58, 59, 16, 52, 53, 17, 58, 59, 52, 53, 52, 53, 22, 58, 59, 23, 52, 53, 58, 59, 58, 59, 10, 34, 35, 11, 58, 59, 196, 220, 221, 197, 52, 53, 52, 53, 52, 53, 208, 52, 53, 209, 54, 47, 46, 59, 58, 59, 214, 58, 59, 215, 52, 41, 40, 85, 52, 53, 202, 226, 227, 203, 58, 59, 58, 59, 58, 59, 52, 53, 52, 53, 52, 53, 52, 239, 238, 49, 58, 59, 58, 59, 58, 59, 58, 233, 232, 59 } }, new int[][] {
-			new int[] { 48, 61, 48, 49, 0, 24, 25, 1, 48, 49, 66, 55, 54, 55, 12, 48, 49, 13, 54, 55, 60, 61, 60, 61, 18, 54, 55, 19, 48, 49, 66, 67, 66, 67, 6, 30, 31, 7, 54, 55, 192, 216, 217, 193, 48, 49, 72, 73, 48, 49, 204, 48, 49, 205, 54, 43, 42, 79, 54, 55, 210, 54, 55, 211, 48, 37, 36, 49, 48, 49, 198, 222, 223, 199, 54, 55, 54, 91, 54, 55, 48, 49, 48, 49, 48, 49, 48, 235, 234, 49, 54, 55, 54, 55, 54, 55, 54, 229, 228, 55 },
-			new int[] { 50, 51, 50, 51, 2, 26, 27, 3, 50, 51, 56, 57, 56, 57, 14, 50, 51, 15, 56, 57, 50, 51, 50, 51, 20, 56, 57, 21, 50, 51, 56, 57, 56, 57, 8, 32, 33, 9, 56, 57, 194, 218, 219, 195, 50, 51, 50, 51, 50, 51, 206, 50, 51, 207, 56, 45, 44, 57, 56, 57, 212, 56, 57, 213, 50, 39, 38, 51, 50, 51, 200, 224, 225, 201, 56, 57, 56, 57, 56, 57, 50, 51, 50, 51, 50, 51, 50, 237, 236, 51, 56, 57, 56, 57, 56, 57, 56, 231, 230, 57 },
-			new int[] { 52, 53, 52, 53, 4, 28, 29, 5, 52, 53, 58, 59, 58, 59, 16, 52, 53, 17, 58, 59, 52, 53, 52, 53, 22, 58, 59, 23, 52, 53, 58, 59, 58, 59, 10, 34, 35, 11, 58, 59, 196, 220, 221, 197, 52, 53, 52, 53, 52, 53, 208, 52, 53, 209, 54, 47, 46, 59, 58, 59, 214, 58, 59, 215, 52, 41, 40, 85, 52, 53, 202, 226, 227, 203, 58, 59, 58, 59, 58, 59, 52, 53, 52, 53, 52, 53, 52, 239, 238, 49, 58, 59, 58, 59, 58, 59, 58, 233, 232, 59 } }, new int[][] {
-			new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-			new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-			new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, new int[][] {
-			new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-			new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-			new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, 10, 10, Tileset.tilesetForest);
-
-	public static Level fire = new Level(new int[][] { new int[] { 76, 95, 80, 81, 81, 81, 82, 81, 82, 81, 74, 75, 80, 73, 72, 83, 80, 81, 82, 83, 80, 81, 84, 79, 78, 85, 86, 85, 86, 85, 86, 87, 84, 77, 78, 87, 84, 85, 86, 87, 84, 89, 88, 91, 88, 79, 90, 89, 90, 89, 90, 91, 88, 89, 90, 91, 88, 89, 90, 91, 93, 95, 76, 95, 84, 79, 94, 93, 94, 93, 94, 87, 92, 93, 92, 93, 78, 85, 86, 79, 72, 81, 80, 81, 74, 91, 464, 465, 466, 467, 80, 87, 72, 81, 83, 74, 79, 90, 93, 95, 84, 87, 76, 87, 86, 87, 472, 473, 474, 471, 84, 85, 78, 93, 95, 94, 95, 92, 95, 168, 88, 91, 74, 89, 90, 91, 468, 469, 470, 475, 88, 89, 90, 83, 176, 177, 178, 177, 178, 170, 84, 95, 84, 93, 92, 95, 460, 463, 478, 461, 92, 78, 86, 87, 180, 181, 181, 181, 181, 181, 88, 89, 90, 89, 95, 464, 458, 459, 168, 177, 169, 84, 90, 91,
-			184, 181, 181, 181, 181, 181, 84, 95, 92, 85, 91, 468, 470, 479, 172, 189, 173, 88, 94, 168, 170, 181, 181, 181, 181, 181, 88, 83, 80, 89, 87, 472, 474, 459, 467, 80, 83, 88, 83, 180, 181, 175, 190, 189, 190, 174, 76, 77, 84, 85, 91, 476, 477, 478, 479, 92, 95, 84, 87, 188, 189, 191, 80, 81, 83, 180, 72, 73, 88, 89, 87, 80, 81, 80, 81, 82, 81, 88, 91, 81, 82, 81, 84, 90, 87, 184, 84, 87, 92, 78, 176, 177, 178, 177, 178, 179, 78, 86, 93, 93, 78, 85, 89, 86, 91, 180, 88, 89, 90, 89, 180, 175, 189, 174, 182, 183, 74, 89, 80, 83, 88, 89, 90, 85, 87, 184, 84, 85, 86, 85, 184, 171, 177, 170, 182, 187, 86, 85, 92, 95, 78, 85, 86, 85, 91, 180, 88, 89, 90, 89, 188, 189, 190, 189, 190, 191, 88, 89, 90, 89, 90, 89, 90, 89, 75, 184, 76, 93, 78, 85, 86, 83, 92, 94, 95, 88, 86, 95, 78, 85,
-			86, 85, 86, 85, 79, 180, 72, 83, 88, 89, 90, 87, 176, 178, 169, 92, 94, 95, 92, 93, 94, 93, 94, 93, 95, 184, 76, 95, 92, 93, 92, 95, 184, 186, 171, 177, 178, 177, 178, 177, 178, 177, 178, 177, 178, 170 } }, new int[][] { new int[] { 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 698, 703, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 718, 702, 699, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 712, 699, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 712, 699, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 716, 717, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 699, 706, 706, 706, 706, 707, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 718, 717, 717, 717, 717, 718, 719, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, new int[][] { new int[] { 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 705, 698, 703, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 702, 699, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 712, 699, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 712, 699, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 715, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 711, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 698, 699, 706, 706, 706, 706, 707, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, new int[][] { new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1,
-			-1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 } }, 20, 20, Tileset.tilesetGroundReal);
-
-	public static Level test = new Level(new int[][] { new int[] { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 } }, new int[][] { new int[] { -1, -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 680, 681, 681, 681, 681, 681, 681, 681, 683, -1, -1, -1, -1, -1, -1, 684, 685, 694, 694, 694, 694, 694, 678, 687, -1, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, -1, 676, 677, -1, -1, -1, -1, -1, 676, 677, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, new int[][] { new int[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 680, 681, 681, 681, 681, 681, 681, 681, 683, -1, -1, -1, -1, -1, -1, 684, 685, -1, -1, -1, -1, -1, 678, 687, -1, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, 684, 687, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, new int[][] { new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, -1, -1, 1, 1,
-			-1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 } }, 15, 15, Tileset.tilesetGroundReal);
-
-	public final int FRAMES;
+	protected final int FRAMES;
 	protected int width, height, curFrame = 0, anim = 0, speed = 20, step = 1;
-	protected int[][] tiles, tilesOver, tilesTop, collides;
+	protected int[][] tiles, tilesOver, tilesTop, collides, collidable, trueCollidable;
 	protected Tileset tileset;
 
-	private List<Entity> entities = new ArrayList<Entity>();
-	private List<Projectile> projectiles = new ArrayList<Projectile>();
+	protected List<EnemySpawner> enemySpawner = new ArrayList<EnemySpawner>();
+	protected List<Entity> entities = new ArrayList<Entity>();
+	protected List<Projectile> projectiles = new ArrayList<Projectile>();
 
 	public Level(int[][] tiles, int[][] tilesOver, int[][] tilesTop, int[][] collides, int width, int height, Tileset tileset) {
 		FRAMES = tilesOver.length;
@@ -61,6 +34,9 @@ public class Level {
 		this.tilesTop = tilesTop;
 		this.collides = collides;
 		this.tileset = tileset;
+		setCollidable();
+		setTrueCollidable();
+		//generateGraph();
 	}
 
 	/**
@@ -74,6 +50,9 @@ public class Level {
 		this.height = height;
 		tiles = new int[1][width * height];
 		generateLevel();
+		setCollidable();
+		setTrueCollidable();
+		//generateGraph();
 	}
 
 	/**
@@ -84,14 +63,17 @@ public class Level {
 		FRAMES = 1;
 		loadLevel(path);
 		generateLevel();
+		setCollidable();
+		setTrueCollidable();
+		//generateGraph();
 	}
 
 	protected void generateLevel() {
 	}
 
 	protected void loadLevel(String path) {
-		URL location = Level.class.getProtectionDomain().getCodeSource().getLocation();
-		File file = new File(location.getFile() + path);
+		//URL location = Level.class.getProtectionDomain().getCodeSource().getLocation();
+		//File file = new File(location.getFile() + path);
 	}
 
 	/**
@@ -102,10 +84,77 @@ public class Level {
 		return projectiles;
 	}
 
+	public List<Entity> getEntities() {
+		return entities;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	protected void setTrueCollidable() {
+		ArrayList<int[]> collidable = new ArrayList<int[]>();
+		this.trueCollidable = null;
+		for (int y = 0; y < 2 * height; y += 2)
+			for (int x = 0; x < 2 * width; x += 2) {
+				int collideType = collides[0][x / 2 + y / 2 * width];
+				if (collideType == SolidType.FULL || collideType == SolidType.LEFT || collideType == SolidType.TOPLEFT || collideType == SolidType.TOPLEFTDIAGONAL || collideType == SolidType.TOP || collideType == SolidType.NOTBOTTOMRIGHT || collideType == SolidType.NOTBOTTOMLEFT || collideType == SolidType.NOTTOPRIGHT) {
+					collidable.add(new int[] { x, y });
+				}
+				if (collideType == SolidType.FULL || collideType == SolidType.RIGHT || collideType == SolidType.TOPRIGHT || collideType == SolidType.TOPRIGHTDIAGONAL || collideType == SolidType.TOP || collideType == SolidType.NOTBOTTOMRIGHT || collideType == SolidType.NOTBOTTOMLEFT || collideType == SolidType.NOTTOPLEFT) {
+					collidable.add(new int[] { x + 1, y });
+				}
+				if (collideType == SolidType.FULL || collideType == SolidType.LEFT || collideType == SolidType.BOTTOMLEFT || collideType == SolidType.TOPRIGHTDIAGONAL || collideType == SolidType.BOTTOM || collideType == SolidType.NOTBOTTOMRIGHT || collideType == SolidType.NOTTOPRIGHT || collideType == SolidType.NOTTOPLEFT) {
+					collidable.add(new int[] { x, y + 1 });
+				}
+				if (collideType == SolidType.FULL || collideType == SolidType.RIGHT || collideType == SolidType.BOTTOMRIGHT || collideType == SolidType.TOPLEFTDIAGONAL || collideType == SolidType.BOTTOM || collideType == SolidType.NOTBOTTOMLEFT || collideType == SolidType.NOTTOPLEFT || collideType == SolidType.NOTTOPRIGHT) {
+					collidable.add(new int[] { x + 1, y + 1 });
+				}
+				this.trueCollidable = new int[collidable.size()][2];
+			}
+		for (int i = 0; i < collidable.size(); i++) {
+			int[] row = collidable.get(i);
+			this.trueCollidable[i] = new int[] { row[0], row[1] };
+		}
+	}
+
+	public int[][] getTrueCollidable() {
+		return trueCollidable;
+	}
+
+	protected void setCollidable() {
+		ArrayList<int[]> collidable = new ArrayList<int[]>();
+		this.collidable = null;
+		for (int y = 0; y < height; y++)
+			for (int x = 0; x < width; x++) {
+				int collideType = collides[0][x + y * width];
+				if (collideType != SolidType.NONE) {// || collideType == SolidType.TOPLEFTDIAGONAL || collideType == SolidType.TOPRIGHTDIAGONAL || collideType == SolidType.NOTBOTTOMLEFT || collideType == SolidType.NOTBOTTOMRIGHT || collideType == SolidType.NOTTOPLEFT || collideType == SolidType.NOTTOPRIGHT) {
+					collidable.add(new int[] { x, y });
+				}
+				this.collidable = new int[collidable.size()][2];
+			}
+		for (int i = 0; i < collidable.size(); i++) {
+			int[] row = collidable.get(i);
+			this.collidable[i] = new int[] { row[0], row[1] };
+		}
+	}
+
+	public int[][] getCollidable() {
+		return collidable;
+	}
+
+	public int[][] getCollides() {
+		return collides;
+	}
+
 	/**
 	 * Updates the level by updating every entity within the level.
 	 */
-	public void update(int xScroll, int yScroll, Screen screen) {
+	public void update(int xScroll, int yScroll, Game game) {
 
 		// Increase the animation step, but don't let it increase indefinitely
 		if (anim < 7500)
@@ -113,7 +162,7 @@ public class Level {
 		else
 			anim = 0;
 
-		if (anim % speed == speed-1) curFrame += step;
+		if (anim % speed == speed - 1) curFrame += step;
 		if (curFrame >= FRAMES) {
 			step = -step;
 			anim = 0;
@@ -129,32 +178,35 @@ public class Level {
 				curFrame = 0;
 		}
 
+		for (EnemySpawner spawner : enemySpawner)
+			spawner.update(game.getPlayer());
+
 		// Determine the corner pins, i.e. the (x,y) values of the tiles in the corners of the viewable screen
 		// (In tile units not pixels)
 		int x0 = xScroll >> 4;
-		int x1 = ((xScroll + screen.width) >> 4) + 1;
+		int x1 = ((xScroll + game.getScreen().getWidth()) >> 4) + 1;
 		int y0 = yScroll >> 4;
-		int y1 = ((yScroll + screen.height) >> 4) + 1;
+		int y1 = ((yScroll + game.getScreen().getHeight()) >> 4) + 1;
 
 		// Renders all the tiles in the viewable screen at their (x,y) positions
 		// (In tile units not pixels)
 		for (int y = y0; y < y1; y++) {
 			for (int x = x0; x < x1; x++) {
-				getTile(x, y).update(anim);
-				if (getTileOver(x, y) != null) getTileOver(x, y).update(anim);
-				if (getTileTop(x, y) != null) getTileTop(x, y).update(anim);
+				getTile(x, y).update();
+				if (getTileOver(x, y) != null) getTileOver(x, y).update();
+				if (getTileTop(x, y) != null) getTileTop(x, y).update();
 			}
 		}
 		for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).update();
+			entities.get(i).update(game);
 		}
 
 		for (int i = 0; i < projectiles.size(); i++) {
-			projectiles.get(i).update();
+			projectiles.get(i).update(game);
 		}
 	}
 
-	private void time() {
+	protected void time() {
 	}
 
 	/**
@@ -171,9 +223,9 @@ public class Level {
 		// Determine the corner pins, i.e. the (x,y) values of the tiles in the corners of the viewable screen
 		// (In tile units not pixels)
 		int x0 = xScroll >> 4;
-		int x1 = ((xScroll + screen.width) >> 4) + 1;
+		int x1 = ((xScroll + screen.getWidth()) >> 4) + 1;
 		int y0 = yScroll >> 4;
-		int y1 = ((yScroll + screen.height) >> 4) + 1;
+		int y1 = ((yScroll + screen.getHeight()) >> 4) + 1;
 
 		// Renders all the tiles in the viewable screen at their (x,y) positions
 		// (In tile units not pixels)
@@ -182,14 +234,6 @@ public class Level {
 				getTile(x, y).render(x, y, screen);
 			}
 		}
-
-		/*for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).render(screen);
-		}
-
-		for (int i = 0; i < projectiles.size(); i++) {
-			projectiles.get(i).render(screen);
-		}*/
 	}
 
 	public void renderOver(int xScroll, int yScroll, Screen screen) {
@@ -200,9 +244,9 @@ public class Level {
 		// Determine the corner pins, i.e. the (x,y) values of the tiles in the corners of the viewable screen
 		// (In tile units not pixels)
 		int x0 = xScroll >> 4;
-		int x1 = ((xScroll + screen.width) >> 4) + 1;
+		int x1 = ((xScroll + screen.getWidth()) >> 4) + 1;
 		int y0 = yScroll >> 4;
-		int y1 = ((yScroll + screen.height) >> 4) + 1;
+		int y1 = ((yScroll + screen.getHeight()) >> 4) + 1;
 
 		// Renders all the tiles in the viewable screen at their (x,y) positions
 		// (In tile units not pixels)
@@ -211,14 +255,6 @@ public class Level {
 				if (getTileOver(x, y) != null) getTileOver(x, y).render(x, y, screen);
 			}
 		}
-
-		/*for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).render(screen);
-		}
-
-		for (int i = 0; i < projectiles.size(); i++) {
-			projectiles.get(i).render(screen);
-		}*/
 	}
 
 	public void renderTop(int xScroll, int yScroll, Screen screen) {
@@ -226,12 +262,16 @@ public class Level {
 		// Tells the screen how much it is to be offset
 		screen.setOffset(xScroll, yScroll);
 
+		for (int i = 0; i < entities.size(); i++) {
+			entities.get(i).render(screen);
+		}
+
 		// Determine the corner pins, i.e. the (x,y) values of the tiles in the corners of the viewable screen
 		// (In tile units not pixels)
 		int x0 = xScroll >> 4;
-		int x1 = ((xScroll + screen.width) >> 4) + 1;
+		int x1 = ((xScroll + screen.getWidth()) >> 4) + 1;
 		int y0 = yScroll >> 4;
-		int y1 = ((yScroll + screen.height) >> 4) + 1;
+		int y1 = ((yScroll + screen.getHeight()) >> 4) + 1;
 
 		// Renders all the tiles in the viewable screen at their (x,y) positions
 		// (In tile units not pixels)
@@ -239,10 +279,6 @@ public class Level {
 			for (int x = x0; x < x1; x++) {
 				if (getTileTop(x, y) != null) getTileTop(x, y).render(x, y, screen);
 			}
-		}
-
-		for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).render(screen);
 		}
 
 		for (int i = 0; i < projectiles.size(); i++) {
@@ -256,6 +292,7 @@ public class Level {
 	 */
 	public void add(Entity e) {
 		entities.add(e);
+		e.init(this);
 	}
 
 	/**
@@ -264,6 +301,17 @@ public class Level {
 	 */
 	public void addProjectile(Projectile p) {
 		projectiles.add(p);
+		p.init(this);
+	}
+
+	public void addEnemySpawner(EnemySpawner spawner) {
+		enemySpawner.add(spawner);
+	}
+
+	public void empty() {
+		entities.clear();
+		projectiles.clear();
+		enemySpawner.clear();
 	}
 
 	/**

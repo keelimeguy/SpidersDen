@@ -8,11 +8,11 @@ public class Tile extends BasicTile {
 	/**
 	 * Creates a new BasicTile.
 	 * @param sprite : The sprite of the tile.
-	 * @param isSolid : True if the tile will be solid, false otherwise.
+	 * @param solidType : How the player will collide with the tile.
 	 */
-	public Tile(Sprite sprite, boolean isSolid) {
+	public Tile(Sprite sprite, int solidType) {
 		super(sprite);
-		this.isSolid = isSolid;
+		this.solidType = solidType;
 	}
 
 	public Tile(Sprite sprite) {
@@ -22,8 +22,8 @@ public class Tile extends BasicTile {
 	public Tile(int x, int y, int width, int height, int groundId, int resId, Tileset tileset) {
 		super(x, y, width, height, groundId, resId, tileset);
 
-		if (groundId < tileset.tiles.length) sprite = tileset.tiles[groundId];
-		if (resId > 0) isSolid = true;
+		if (groundId < tileset.getTiles().length) sprite = tileset.getTiles()[groundId];
+		solidType = resId;
 	}
 
 	public void render(int x, int y, Screen screen) {
@@ -32,6 +32,10 @@ public class Tile extends BasicTile {
 	}
 
 	public boolean solid() {
-		return isSolid;
+		return solidType > 0;
+	}
+
+	public int solidType() {
+		return solidType;
 	}
 }

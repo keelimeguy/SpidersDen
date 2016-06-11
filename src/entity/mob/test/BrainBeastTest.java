@@ -1,39 +1,27 @@
-package entity.mob;
+package entity.mob.test;
 
-import entity.projectile.FireballProjectile;
-import entity.projectile.Projectile;
+import level.tile.SolidType;
 import game.Game;
+import graphics.EnemySprite;
 import graphics.FireballSprite;
-import graphics.PlayerSprite;
 import graphics.Screen;
 import graphics.Sprite;
 import input.Keyboard;
 import input.Mouse;
-import level.tile.SolidType;
+import entity.mob.Mob;
+import entity.projectile.FireballProjectile;
+import entity.projectile.Projectile;
 
-public class Player extends Mob {
+public class BrainBeastTest extends Mob {
 
 	private Keyboard input;
+	private Sprite sprite;
 	private Sprite[][] sprites;
 	private int anim = 0;
-	private boolean walking = false, spaceFree = false, powered = false;
+	private boolean walking = false, spaceFree = false;
 
 	private int fireRate = 0;
-
-	/**
-	 * Creates a player at a default location
-	 * @param input : The Keyboard controller for this player
-	 */
-	public Player(Keyboard input) {
-		this.input = input;
-		sprites = PlayerSprite.playerRed;
-		sprite = sprites[0][0];
-		fireRate = FireballProjectile.FIRE_RATE;
-		animSpeed = 10;
-		moveSpeed = 2;
-		maxHealth = 1000;
-		health = maxHealth;
-	}
+	Projectile p;
 
 	/**
 	 * Creates a player at a specific (x,y) location
@@ -41,17 +29,15 @@ public class Player extends Mob {
 	 * @param y : The starting y coordinate (in pixel units)
 	 * @param input : The Keyboard controller for this player
 	 */
-	public Player(int x, int y, Keyboard input) {
+	public BrainBeastTest(int x, int y, Keyboard input) {
 		this.x = x;
 		this.y = y;
 		this.input = input;
-		sprites = PlayerSprite.playerRed;
+		sprites = EnemySprite.brainBeast;
 		sprite = sprites[0][0];
 		fireRate = FireballProjectile.FIRE_RATE;
 		animSpeed = 10;
-		moveSpeed = 2;
-		maxHealth = 1000;
-		health = maxHealth;
+		moveSpeed = 1;
 	}
 
 	/**
@@ -76,32 +62,7 @@ public class Player extends Mob {
 		if (input.left) dx--;
 		if (input.right) dx++;
 
-		if (input.q)
-			powered = true;
-		else
-			powered = false;
-
 		if (anim % 24 == 23) spaceFree = true;
-
-		if (input.space && spaceFree) {
-			spaceFree = false;
-			anim = 0;
-			if (sprites == PlayerSprite.playerRed)
-				sprites = PlayerSprite.playerCyan;
-			else if (sprites == PlayerSprite.playerCyan)
-				sprites = PlayerSprite.playerBlack;
-			else if (sprites == PlayerSprite.playerBlack)
-				sprites = PlayerSprite.playerPurple;
-			else if (sprites == PlayerSprite.playerPurple)
-				sprites = PlayerSprite.playerOrange;
-			else if (sprites == PlayerSprite.playerOrange)
-				sprites = PlayerSprite.playerBlue;
-			else if (sprites == PlayerSprite.playerBlue)
-				sprites = PlayerSprite.playerGreen;
-			else if (sprites == PlayerSprite.playerGreen)
-				sprites = PlayerSprite.playerYellow;
-			else if (sprites == PlayerSprite.playerYellow) sprites = PlayerSprite.playerRed;
-		}
 
 		// Move the player if its position will change, set walking flag accordingly
 		if (dx != 0 || dy != 0) {
@@ -131,37 +92,7 @@ public class Player extends Mob {
 	 * @param dir : The direction where the projectile faces.
 	 */
 	protected void shoot(int x, int y, double dir) {
-		Projectile p = new FireballProjectile(x, y, dir, FireballSprite.fireballRed, 5);
-		if (!powered) {
-			if (sprites == PlayerSprite.playerCyan)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyan);
-			else if (sprites == PlayerSprite.playerBlack)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlack);
-			else if (sprites == PlayerSprite.playerPurple)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurple);
-			else if (sprites == PlayerSprite.playerOrange)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrange);
-			else if (sprites == PlayerSprite.playerBlue)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlue);
-			else if (sprites == PlayerSprite.playerGreen)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreen);
-			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellow);
-		} else {
-			p = new FireballProjectile(x, y, dir, FireballSprite.fireballRedFull, 20);
-			if (sprites == PlayerSprite.playerCyan)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyanFull);
-			else if (sprites == PlayerSprite.playerBlack)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlackFull);
-			else if (sprites == PlayerSprite.playerPurple)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurpleFull);
-			else if (sprites == PlayerSprite.playerOrange)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrangeFull);
-			else if (sprites == PlayerSprite.playerBlue)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlueFull);
-			else if (sprites == PlayerSprite.playerGreen)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreenFull);
-			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellowFull);
-		}
+		Projectile p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlackFull);
 		level.addProjectile(p);
 	}
 
@@ -194,10 +125,10 @@ public class Player extends Mob {
 		if (dir == 0) {
 			sprite = sprites[0][0];
 			if (walking) {
-				if (anim % (2 * animSpeed) >= 1 * animSpeed)
+				if (anim % (2 * animSpeed) >= 10 * animSpeed)
 					sprite = sprites[0][1];
 				else
-					sprite = sprites[0][2];
+					sprite = sprites[0][0];
 			}
 		}
 		// down
@@ -207,7 +138,7 @@ public class Player extends Mob {
 				if (anim % (2 * animSpeed) >= 1 * animSpeed)
 					sprite = sprites[2][1];
 				else
-					sprite = sprites[2][2];
+					sprite = sprites[2][0];
 			}
 		}
 		// right
@@ -217,7 +148,7 @@ public class Player extends Mob {
 				if (anim % (2 * animSpeed) >= 1 * animSpeed)
 					sprite = sprites[1][1];
 				else
-					sprite = sprites[1][2];
+					sprite = sprites[1][0];
 			}
 		}
 		// left
@@ -227,7 +158,7 @@ public class Player extends Mob {
 				if (anim % (2 * animSpeed) >= 1 * animSpeed)
 					sprite = sprites[1][1];
 				else
-					sprite = sprites[1][2];
+					sprite = sprites[1][0];
 			}
 			flip = 1;
 		}
@@ -237,13 +168,9 @@ public class Player extends Mob {
 		int yy = y - sprite.SIZE_Y / 2;
 
 		// Render the player sprite
-		screen.renderPlayer(xx, yy, sprite, flip);
+		screen.renderMob(xx, yy, sprite, flip);
 
-		//showCollision(screen);
-
-		int mx = (int) (((2 * x / 8.0 + sprite.SIZE_X / 16.0) / 2.0 - 1.0) * 8.0) - screen.getXOffset();
-		int my = (int) (((2 * y / 8.0 + sprite.SIZE_Y / 16.0) / 2.0 - 1.0) * 8.0) - screen.getYOffset();
-		screen.setPixel(0xffff0000, mx, my);
+		showCollision(screen);
 	}
 
 	public void showCollision(Screen screen) {
@@ -296,6 +223,7 @@ public class Player extends Mob {
 			int xxt = getEdgePinX(c, dx, xOff, mirror);
 			int yyt = getEdgePinY(c, dy, yOff, mirror);
 
+			//System.out.println("CORNER");
 			switch (level.getTile(xt, yt).solidType()) {
 			case SolidType.NONE:
 				//System.out.println("NONE");
@@ -306,84 +234,84 @@ public class Player extends Mob {
 			case SolidType.TOP:
 				//System.out.println("TOP");
 				xOff = 0;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.BOTTOM:
 				//System.out.println("BOTTOM");
 				xOff = 0;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.LEFT:
 				//System.out.println("LEFT");
-				xOff = sprite.SIZE_X / 2 - 4;
+				xOff = sprite.SIZE_X / 2 - 16;
 				yOff = 0;
 				break;
 			case SolidType.RIGHT:
 				//System.out.println("RIGHT");
-				xOff = -sprite.SIZE_X / 2 + 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
 				yOff = 0;
 				break;
 			case SolidType.TOPLEFT:
 				//System.out.println("TOPLEFT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.BOTTOMLEFT:
 				//System.out.println("BOTTOMLEFT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.TOPRIGHT:
 				//System.out.println("TOPRIGHT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.BOTTOMRIGHT:
 				//System.out.println("BOTTOMRIGHT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.NOTTOPLEFT:
 				//System.out.println("NOTTOPLEFT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.NOTBOTTOMLEFT:
 				//System.out.println("NOTBOTTOMLEFT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.NOTTOPRIGHT:
 				//System.out.println("NOTTOPRIGHT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.NOTBOTTOMRIGHT:
 				//System.out.println("NOTBOTTOMRIGHT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.TOPLEFTDIAGONAL:
 				//System.out.println("TOPLEFTDIAGONAL");
-				xOff = 4;
-				yOff = 4;
+				xOff = 16;
+				yOff = 16;
 				mirror = true;
 				break;
 			case SolidType.TOPRIGHTDIAGONAL:
 				//System.out.println("TOPRIGHTDIAGONAL");
-				xOff = 4;
-				yOff = 4;
+				xOff = 16;
+				yOff = 16;
 				mirror = true;
 				break;
 			}
-			//System.out.println(xOff + ", " + yOff);
 			xt = getCornerPinX(c, dx, xOff, mirror);
 			yt = getCornerPinY(c, dy, yOff, mirror);
-			//System.out.println("Corner: " + c + "  " + xt + ", " + xt + " " + level.getTile(xt, yt).solid());
+			//System.out.println(c + "  " + xt + ", " + xt + " " + level.getTile(xt, yt).solid());
 			if (level.getTile(xt, yt).solid()) return true;
 
 			mirror = false;
 
+			//System.out.println("EDGE");
 			switch (level.getTile(xxt, yyt).solidType()) {
 			case SolidType.NONE:
 				//System.out.println("NONE");
@@ -396,83 +324,81 @@ public class Player extends Mob {
 			case SolidType.TOP:
 				//System.out.println("TOP");
 				xOff = 0;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.BOTTOM:
 				//System.out.println("BOTTOM");
 				xOff = 0;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.LEFT:
 				//System.out.println("LEFT");
-				xOff = sprite.SIZE_X / 2 - 4;
+				xOff = sprite.SIZE_X / 2 - 16;
 				yOff = 0;
 				break;
 			case SolidType.RIGHT:
 				//System.out.println("RIGHT");
-				xOff = -sprite.SIZE_X / 2 + 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
 				yOff = 0;
 				break;
 			case SolidType.TOPLEFT:
 				//System.out.println("TOPLEFT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.BOTTOMLEFT:
 				//System.out.println("BOTTOMLEFT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.TOPRIGHT:
 				//System.out.println("TOPRIGHT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.BOTTOMRIGHT:
 				//System.out.println("BOTTOMRIGHT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.NOTTOPLEFT:
 				//System.out.println("NOTTOPLEFT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.NOTBOTTOMLEFT:
 				//System.out.println("NOTBOTTOMLEFT");
-				xOff = -sprite.SIZE_X / 2 + 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = -sprite.SIZE_X / 2 + 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.NOTTOPRIGHT:
 				//System.out.println("NOTTOPRIGHT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = sprite.SIZE_Y / 2 - 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = sprite.SIZE_Y / 2 - 16;
 				break;
 			case SolidType.NOTBOTTOMRIGHT:
 				//System.out.println("NOTBOTTOMRIGHT");
-				xOff = sprite.SIZE_X / 2 - 4;
-				yOff = -sprite.SIZE_Y / 2 + 4;
+				xOff = sprite.SIZE_X / 2 - 16;
+				yOff = -sprite.SIZE_Y / 2 + 16;
 				break;
 			case SolidType.TOPLEFTDIAGONAL:
 				//System.out.println("TOPLEFTDIAGONAL");
-				xOff = 4;
-				yOff = 4;
+				xOff = 16;
+				yOff = 16;
 				mirror = true;
 				break;
 			case SolidType.TOPRIGHTDIAGONAL:
 				//System.out.println("TOPRIGHTDIAGONAL");
-				xOff = 4;
-				yOff = 4;
+				xOff = 16;
+				yOff = 16;
 				mirror = true;
 				break;
 			}
-
 			xxt = getEdgePinX(c, dx, xOff, mirror);
 			yyt = getEdgePinY(c, dy, yOff, mirror);
-			//System.out.println("Edge " + xxt + ", " + yyt + " " + level.getTile(xxt, yyt).solid());
+			//System.out.println(c + "  " + xxt + ", " + yyt + " " + level.getTile(xxt, yyt).solid());
 			if (level.getTile(xxt, yyt).solid()) return true;
 		}
 		return false;
 	}
-
 }
