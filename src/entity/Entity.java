@@ -10,14 +10,15 @@ import level.Level;
 public abstract class Entity {
 
 	protected int x, y;
-	protected boolean removed = false;
+	protected boolean removed = false, hidden = false;
 	protected Level level;
-	protected final Random random = new Random();
 
 	public void update(Game game) {
+		if (hidden) return;
 	}
 
 	public void render(Screen screen) {
+		if (hidden) return;
 	}
 
 	/**
@@ -35,6 +36,22 @@ public abstract class Entity {
 		return y;
 	}
 
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public void show() {
+		hidden = false;
+	}
+
+	public void hide() {
+		hidden = true;
+	}
+
 	/**
 	 * Determines if the entity is removed
 	 * @return
@@ -50,6 +67,7 @@ public abstract class Entity {
 	 * 
 	 */
 	public void init(Level level) {
+		removed = false;
 		this.level = level;
 	}
 }

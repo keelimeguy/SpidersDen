@@ -54,6 +54,7 @@ public class FireballProjectile extends Projectile {
 	 * Updates the projectile.
 	 */
 	public void update(Game game) {
+		if (hidden) return;
 		// Increase the animation step, but don't let it increase indefinitely
 		if (anim < 7500)
 			anim++;
@@ -90,13 +91,15 @@ public class FireballProjectile extends Projectile {
 	protected boolean collision(int dx, int dy) {
 		for (Entity e : level.getEntities())
 			if (e instanceof Mob) for (int c = 0; c < 4; c++) {
-				int xt = ((Mob) e).getCornerPinX(c, 0, 0, false);
-				int yt = ((Mob) e).getCornerPinY(c, 0, 0, false);
-				int xxt = ((Mob) e).getEdgePinX(c, 0, 0, false);
-				int yyt = ((Mob) e).getEdgePinY(c, 0, 0, false);
-				if (level.getTile(xt, yt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4))) {
-					((Mob) e).hit(damage);
-					return true;
+				if (((Mob) e).isSolid()) {
+					int xt = ((Mob) e).getCornerPinX(c, 0, 0, false);
+					int yt = ((Mob) e).getCornerPinY(c, 0, 0, false);
+					int xxt = ((Mob) e).getEdgePinX(c, 0, 0, false);
+					int yyt = ((Mob) e).getEdgePinY(c, 0, 0, false);
+					if (level.getTile(xt, yt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4))) {
+						((Mob) e).hit(damage);
+						return true;
+					}
 				}
 			}
 		return false;
@@ -107,6 +110,7 @@ public class FireballProjectile extends Projectile {
 	 * @param screen : The Screen to which the projectile will be rendered.
 	 */
 	public void render(Screen screen) {
+		if (hidden) return;
 		screen.renderProjectile((int) x - sprite.SIZE_X / 2, (int) y - sprite.SIZE_Y / 2, this);
 	}
 }

@@ -83,11 +83,13 @@ public abstract class Projectile extends Entity {
 		if (level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4).solid()) return true;
 		for (Entity e : level.getEntities())
 			if (e instanceof Mob) for (int c = 0; c < 4; c++) {
-				int xt = ((Mob) e).getCornerPinX(c, 0, 0, false);
-				int yt = ((Mob) e).getCornerPinY(c, 0, 0, false);
-				int xxt = ((Mob) e).getEdgePinX(c, 0, 0, false);
-				int yyt = ((Mob) e).getEdgePinY(c, 0, 0, false);
-				if (level.getTile(xt, yt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4))) return true;
+				if (((Mob) e).isSolid()) {
+					int xt = ((Mob) e).getCornerPinX(c, 0, 0, false);
+					int yt = ((Mob) e).getCornerPinY(c, 0, 0, false);
+					int xxt = ((Mob) e).getEdgePinX(c, 0, 0, false);
+					int yyt = ((Mob) e).getEdgePinY(c, 0, 0, false);
+					if (level.getTile(xt, yt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + dx) >> 4, ((int) y + dy) >> 4))) return true;
+				}
 			}
 		return false;
 	}

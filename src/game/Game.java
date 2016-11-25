@@ -1,9 +1,5 @@
 package game;
 
-import graphics.Screen;
-import input.Keyboard;
-import input.Mouse;
-
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,13 +8,23 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
+import entity.mob.Mob;
+import entity.mob.Player;
+import entity.mob.Spider;
+import entity.ui.Border;
+import entity.ui.Menu;
+import entity.ui.TextField;
+import graphics.Screen;
+import graphics.Sprite;
+import input.Keyboard;
+import input.Mouse;
+import input.ai.SpiderAI;
 import level.Level;
 import level.LevelData;
+import level.SpiderSpawner;
 import sound.LoopStart;
 import sound.MusicPlayer;
 import sound.SoundPlayer;
-import entity.mob.Mob;
-import entity.mob.Player;
 
 public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -32,17 +38,19 @@ public class Game extends Canvas implements Runnable {
 
 	private Thread thread;
 	private JFrame frame;
+	private TextField textField;
+	private Menu menu;
 	private Keyboard key;
 	private Level level;
 	private Mob player;
-	private boolean running = false;
+	private boolean running = false, paused = false, press = false;
 
 	private Screen screen;
 	private static MusicPlayer snd;
 	private static SoundPlayer noise;
 
 	// The image which will be drawn in the game window
-	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	private BufferedImage image = new BufferedImage(width * scale, height * scale, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
 	/**
@@ -52,10 +60,18 @@ public class Game extends Canvas implements Runnable {
 		Dimension size = new Dimension(width * scale, height * scale);
 		setPreferredSize(size);
 
-		screen = new Screen(width, height);
+		screen = new Screen(width, height, scale);
 		frame = new JFrame();
 		key = new Keyboard();
 		level = LevelData.fire;
+
+		textField = new TextField(10, 3 * height / 4, new Sprite(1, 1, 0x88ff0000), new Border(width - 20, height / 4 - 10, new Sprite(1, 1, 0x88ffff00), new Sprite(1, 1, 0x88ffffff), new Sprite(1, 1, 0x8800ffff), new Sprite(1, 1, 0x8800ff00), 5));
+		textField.setText("First line test.\nSecond line test.\nThird line test.");
+		//textField.hide();
+
+		String[] options = { "Option 1", "Option 2", "Option 3", "Option 4", "Option 5" };
+		menu = new Menu(width / 5, height / 7, new Sprite(1, 1, 0x88ff0000), new Border(3 * width / 5, 5 * height / 7, new Sprite(1, 1, 0x88ffff00), new Sprite(1, 1, 0x88ffffff), new Sprite(1, 1, 0x8800ffff), new Sprite(1, 1, 0x8800ff00), 5), options);
+		menu.hide();
 
 		define();
 
@@ -72,6 +88,7 @@ public class Game extends Canvas implements Runnable {
 	private void define() {
 		player = new Player(3 << 4, 3 << 4, key);
 		level.empty();
+		level.addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(level, null, player)), level, 600));
 		player.init(level);
 	}
 
@@ -97,6 +114,14 @@ public class Game extends Canvas implements Runnable {
 
 	public Mob getPlayer() {
 		return player;
+	}
+
+	public TextField getTextField() {
+		return textField;
+	}
+
+	public boolean mouseInBounds(int x, int y, int sizeX, int sizeY) {
+		return Mouse.getX() / screen.getScale() > x * getWindowWidth() / (screen.getWidth() * screen.getScale()) && Mouse.getX() / screen.getScale() < (sizeX + x) * getWindowWidth() / (screen.getWidth() * screen.getScale()) && Mouse.getY() / screen.getScale() > y * getWindowHeight() / (screen.getHeight() * screen.getScale()) && Mouse.getY() / screen.getScale() < (sizeY + y) * getWindowHeight() / (screen.getHeight() * screen.getScale());
 	}
 
 	/**
@@ -135,16 +160,20 @@ public class Game extends Canvas implements Runnable {
 		final double ns = 1000000000.0 / 60.0;
 		double delta = 0;
 		int frames = 0, updates = 0;
-		requestFocus();
 
 		String audioFilePath = "/Res/Music/funky.wav";
 		snd.playMusic(audioFilePath, LoopStart.FUNKY, -1);
+
+		requestFocus();
 
 		// The game loop
 		while (running) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
+
+			// Limit delay recovery by half a second
+			if (delta > 30) delta = 30;
 
 			// Update 60 times a second
 			while (delta >= 1) {
@@ -179,16 +208,33 @@ public class Game extends Canvas implements Runnable {
 			anim = 0;
 
 		if (anim % speed == speed - 1) step++;
-		if (key.shift && step >= 1) {
+		if (key.enter && !press) {
+			press = true;
+			if (!paused) {
+				paused = true;
+				textField.setText("Pause");
+				menu.show();
+			} else {
+				paused = false;
+				textField.setText("Unpause");
+				menu.hide();
+			}
+		} else if (!key.enter) press = false;
+
+		if (key.shift && step >= 1 && !paused) {
 			step = anim = 0;
 			define();
 		}
-		int xScroll = player.x - screen.getWidth() / 2;
-		int yScroll = player.y - screen.getHeight() / 2;
+
+		int xScroll = player.getX() - screen.getWidth() / 2;
+		int yScroll = player.getY() - screen.getHeight() / 2;
 		key.update();
-		player.update(this);
-		//level.addEnemies();
-		level.update(xScroll, yScroll, this);
+		if (!paused) {
+			player.update(this);
+			level.update(xScroll, yScroll, this);
+		}
+		textField.update(this);
+		menu.update(this);
 	}
 
 	/**
@@ -202,8 +248,8 @@ public class Game extends Canvas implements Runnable {
 		// Clear the screen to black before rendering
 		screen.clear(0);
 
-		int xScroll = player.x - screen.getWidth() / 2;
-		int yScroll = player.y - screen.getHeight() / 2;
+		int xScroll = player.getX() - screen.getWidth() / 2;
+		int yScroll = player.getY() - screen.getHeight() / 2;
 
 		// Render the level with the given screen offset
 		level.renderUnder(xScroll, yScroll, screen);
@@ -216,6 +262,9 @@ public class Game extends Canvas implements Runnable {
 		player.render(screen);
 
 		level.renderTop(xScroll, yScroll, screen);
+
+		textField.render(screen);
+		menu.render(screen);
 
 		// Copy the screen pixels to the image to be drawn
 		System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);

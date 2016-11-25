@@ -3,8 +3,9 @@ package level;
 import java.util.Random;
 
 import entity.mob.Mob;
+import game.Game;
 
-public abstract class EnemySpawner<T> {
+public abstract class EnemySpawner {
 
 	protected Mob mob;
 	protected Level level;
@@ -18,6 +19,6 @@ public abstract class EnemySpawner<T> {
 		this.speed = speed;
 	}
 
-	public void update(Mob target) {
+	public void update(Game game) {
 	}
 }

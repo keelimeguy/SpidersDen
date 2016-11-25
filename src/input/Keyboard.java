@@ -6,7 +6,7 @@ import java.awt.event.KeyListener;
 public class Keyboard implements KeyListener {
 
 	private boolean[] keys = new boolean[600];
-	public boolean up, down, left, right, q, e, n1, n2, n3, n4, n5, n6, n7, n8, n9, n0, space, shift, ctrl;
+	public boolean up, down, left, right, q, e, n1, n2, n3, n4, n5, n6, n7, n8, n9, n0, space, shift, ctrl, enter;
 
 	/**
 	 * Sets a flag to determine what action should occur given associated key presses
@@ -31,6 +31,7 @@ public class Keyboard implements KeyListener {
 		space = keys[KeyEvent.VK_SPACE];
 		shift = keys[KeyEvent.VK_SHIFT];
 		ctrl = keys[KeyEvent.VK_CONTROL];
+		enter = keys[KeyEvent.VK_ENTER];
 	}
 
 	public void keyPressed(KeyEvent e) {

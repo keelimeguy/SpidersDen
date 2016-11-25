@@ -46,8 +46,9 @@ public class SpiderTest extends Mob {
 	 * Updates the Spider animation and moves the Spider when necessary
 	 */
 	public void update(Game game) {
-		int mx = (int) (((x / 16.0) + ((x + level.getWidth()) / 16.0) + 1.0) / 2.0 - .5);
-		int my = (int) (((y / 16.0) + ((y + level.getHeight()) / 16.0) + 1.0) / 2.0 - .5);
+		if (hidden) return;
+		//int mx = (int) (((x / 16.0) + ((x + level.getWidth()) / 16.0) + 1.0) / 2.0 - .5);
+		//int my = (int) (((y / 16.0) + ((y + level.getHeight()) / 16.0) + 1.0) / 2.0 - .5);
 		//System.out.println(mx + ", " + my + "    " + (x >> 4) + ", " + (y >> 4) + "    " + ((x + level.getWidth()) >> 4) + ", " + ((y + level.getHeight()) >> 4));
 
 		int width = game.getWindowWidth();
@@ -125,6 +126,9 @@ public class SpiderTest extends Mob {
 		updateShooting(width, height);
 	}
 
+	public void checkDeath() {
+	}
+
 	/**
 	 * Clears projectiles which have been removed from the level.
 	 */
@@ -183,6 +187,7 @@ public class SpiderTest extends Mob {
 	 *  Renders the Spider according to its direction and animation step
 	 */
 	public void render(Screen screen) {
+		if (hidden) return;
 
 		// Flip variable (0=none, 1=horizontal, 2=vertical, 3=both)
 		int flip = 0;

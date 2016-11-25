@@ -70,12 +70,15 @@ public class Spider extends Mob {
 		attackingSpeed = spider.attackingSpeed;
 		dyingSpeed = spider.dyingSpeed;
 		dead = false;
+		collidable = true;
 	}
 
 	/**
 	 * Updates the Spider animation and moves the Spider when necessary
 	 */
 	public void update(Game game) {
+		if (hidden) return;
+
 		int width = game.getWindowWidth();
 		int height = game.getWindowHeight();
 
@@ -100,6 +103,7 @@ public class Spider extends Mob {
 			walking = false;
 			dying = true;
 			anim = 0;
+			collidable = false;
 		} else if (!attacking && !dying) {
 			if (input.up) dy--;
 			if (input.down) dy++;
@@ -214,6 +218,7 @@ public class Spider extends Mob {
 	 *  Renders the Spider according to its direction and animation step
 	 */
 	public void render(Screen screen) {
+		if (hidden) return;
 
 		// Flip variable (0=none, 1=horizontal, 2=vertical, 3=both)
 		int flip = 0;
@@ -265,6 +270,7 @@ public class Spider extends Mob {
 					dead = false;
 				}
 			}
+			// System.out.println(dead + ", " + collidable);
 		}
 		// down
 		if (dir == 2) {
@@ -412,11 +418,7 @@ public class Spider extends Mob {
 		// Render the Spider sprite
 		screen.renderPlayer(xx, yy, sprite, flip);
 
-		//showCollision(screen);
-
-		int mx = (int) (((2 * x / 8.0 + sprite.SIZE_X / 16.0) / 2.0 - 2.0) * 8.0) - screen.getXOffset();
-		int my = (int) (((2 * y / 8.0 + sprite.SIZE_Y / 16.0) / 2.0 - 2.0) * 8.0) - screen.getYOffset();
-		screen.setPixel(0xffff0000, mx, my);
+		// showCollision(screen);
 	}
 
 	public void showCollision(Screen screen) {

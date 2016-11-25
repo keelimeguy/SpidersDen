@@ -54,7 +54,7 @@ public class GameTest extends Game implements Runnable {
 		Dimension size = new Dimension(width * scale, height * scale);
 		setPreferredSize(size);
 
-		screen = new Screen(width, height);
+		screen = new Screen(width, height, scale);
 		frame = new JFrame();
 		key = new Keyboard();
 		level = LevelData.fire;
@@ -202,8 +202,8 @@ public class GameTest extends Game implements Runnable {
 			step = anim = 0;
 			define();
 		}
-		int xScroll = player.x - screen.getWidth() / 2;
-		int yScroll = player.y - screen.getHeight() / 2;
+		int xScroll = player.getX() - screen.getWidth() / 2;
+		int yScroll = player.getY() - screen.getHeight() / 2;
 		key.update();
 		player.update(this);
 		//level.addEnemies();
@@ -221,8 +221,8 @@ public class GameTest extends Game implements Runnable {
 		// Clear the screen to black before rendering
 		screen.clear(0);
 
-		int xScroll = player.x - screen.getWidth() / 2;
-		int yScroll = player.y - screen.getHeight() / 2;
+		int xScroll = player.getX() - screen.getWidth() / 2;
+		int yScroll = player.getY() - screen.getHeight() / 2;
 
 		// Render the level with the given screen offset
 		level.renderUnder(xScroll, yScroll, screen);

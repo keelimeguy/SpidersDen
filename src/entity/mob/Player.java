@@ -58,6 +58,7 @@ public class Player extends Mob {
 	 * Updates the player animation and moves the player when necessary
 	 */
 	public void update(Game game) {
+		if (hidden) return;
 		int width = game.getWindowWidth();
 		int height = game.getWindowHeight();
 
@@ -134,33 +135,33 @@ public class Player extends Mob {
 		Projectile p = new FireballProjectile(x, y, dir, FireballSprite.fireballRed, 5);
 		if (!powered) {
 			if (sprites == PlayerSprite.playerCyan)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyan);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyan, 5);
 			else if (sprites == PlayerSprite.playerBlack)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlack);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlack, 5);
 			else if (sprites == PlayerSprite.playerPurple)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurple);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurple, 5);
 			else if (sprites == PlayerSprite.playerOrange)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrange);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrange, 5);
 			else if (sprites == PlayerSprite.playerBlue)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlue);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlue, 5);
 			else if (sprites == PlayerSprite.playerGreen)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreen);
-			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellow);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreen, 5);
+			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellow, 5);
 		} else {
 			p = new FireballProjectile(x, y, dir, FireballSprite.fireballRedFull, 20);
 			if (sprites == PlayerSprite.playerCyan)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyanFull);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyanFull, 20);
 			else if (sprites == PlayerSprite.playerBlack)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlackFull);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlackFull, 20);
 			else if (sprites == PlayerSprite.playerPurple)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurpleFull);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurpleFull, 20);
 			else if (sprites == PlayerSprite.playerOrange)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrangeFull);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrangeFull, 20);
 			else if (sprites == PlayerSprite.playerBlue)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlueFull);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlueFull, 20);
 			else if (sprites == PlayerSprite.playerGreen)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreenFull);
-			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellowFull);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreenFull, 20);
+			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellowFull, 20);
 		}
 		level.addProjectile(p);
 	}
@@ -184,6 +185,7 @@ public class Player extends Mob {
 	 *  Renders the player according to its direction and animation step
 	 */
 	public void render(Screen screen) {
+		if (hidden) return;
 
 		// Flip variable (0=none, 1=horizontal, 2=vertical, 3=both)
 		int flip = 0;
@@ -240,10 +242,6 @@ public class Player extends Mob {
 		screen.renderPlayer(xx, yy, sprite, flip);
 
 		//showCollision(screen);
-
-		int mx = (int) (((2 * x / 8.0 + sprite.SIZE_X / 16.0) / 2.0 - 1.0) * 8.0) - screen.getXOffset();
-		int my = (int) (((2 * y / 8.0 + sprite.SIZE_Y / 16.0) / 2.0 - 1.0) * 8.0) - screen.getYOffset();
-		screen.setPixel(0xffff0000, mx, my);
 	}
 
 	public void showCollision(Screen screen) {

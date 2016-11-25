@@ -167,9 +167,8 @@ public class AStar {
 		  for blocked cells.
 		*/
 		if (!repeat) for (int i = 0; i < blocked.length; ++i) {
-			if (!(blocked[i][0] == startX && blocked[i][1] == startY)) {
-				setBlocked(blocked[i][0], blocked[i][1]);
-			}
+			if (blocked[i][0] == startX && blocked[i][1] == startY) return null;
+			setBlocked(blocked[i][0], blocked[i][1]);
 		}
 
 		if (!cutCorners && !repeat) adjustGridCorners(width, height);

@@ -6,7 +6,7 @@ import graphics.Sprite;
 import java.awt.Rectangle;
 
 public class Block extends Rectangle {
-	public static Block voidTile = new BasicTile(Sprite.voidSprite, -1);
+	public static Block voidTile = new BasicTile(Sprite.voidSprite, SolidType.FULL);
 
 	public int ResId = -1;
 	public int groundId = -1;
@@ -33,8 +33,8 @@ public class Block extends Rectangle {
 	public boolean solid() {
 		return false;
 	}
-	
+
 	public int solidType() {
-		return -1;
+		return SolidType.FULL;
 	}
 }

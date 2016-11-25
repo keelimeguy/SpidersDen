@@ -179,7 +179,7 @@ public class Level {
 		}
 
 		for (EnemySpawner spawner : enemySpawner)
-			spawner.update(game.getPlayer());
+			spawner.update(game);
 
 		// Determine the corner pins, i.e. the (x,y) values of the tiles in the corners of the viewable screen
 		// (In tile units not pixels)

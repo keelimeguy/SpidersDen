@@ -44,6 +44,7 @@ public class BrainBeastTest extends Mob {
 	 * Updates the player animation and moves the player when necessary
 	 */
 	public void update(Game game) {
+		if (hidden) return;
 		int width = game.getWindowWidth();
 		int height = game.getWindowHeight();
 
@@ -115,7 +116,7 @@ public class BrainBeastTest extends Mob {
 	 *  Renders the player according to its direction and animation step
 	 */
 	public void render(Screen screen) {
-
+		if (hidden) return;
 		// Flip variable (0=none, 1=horizontal, 2=vertical, 3=both)
 		int flip = 0;
 

@@ -9,7 +9,7 @@ public abstract class Mob extends Entity {
 
 	protected Sprite sprite;
 	protected int dir = 0, lastDir = 0, savedDir = 0;
-	protected boolean moving = false, newDir = true;
+	protected boolean moving = false, newDir = true, collidable = true;
 	protected int moveSpeed = 1, animSpeed = 1;
 	protected int health, maxHealth;
 
@@ -89,12 +89,14 @@ public abstract class Mob extends Entity {
 	}
 
 	public void update(Game game) {
+		if (hidden) return;
 	}
 
 	protected void shoot(int x, int y, double dir) {
 	}
 
 	public void render(Screen screen) {
+		if (hidden) return;
 	}
 
 	public int getCornerPinX(int c, int dx, int xOff, boolean mirror) {
@@ -138,6 +140,10 @@ public abstract class Mob extends Entity {
 	 */
 	protected boolean collision(int dx, int dy) {
 		return level.getTile((x + dx) >> 4, (y + dy) >> 4).solid();
+	}
+
+	public boolean isSolid() {
+		return collidable;
 	}
 
 	public Sprite getSprite() {

@@ -1,12 +1,22 @@
 package graphics;
 
-import level.tile.Block;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+
 import entity.projectile.Projectile;
+import entity.ui.FontLibrary;
+import level.tile.Block;
 
 public class Screen {
 
-	private int width, height;
+	private BufferedImage image;
+	private int width, height, scale;
 	private int[] pixels;
+	private int[] imagePixels;
 
 	private int xOffset, yOffset;
 
@@ -15,10 +25,13 @@ public class Screen {
 	 * @param width : Width of the screen
 	 * @param height : Height of the screen
 	 */
-	public Screen(int width, int height) {
+	public Screen(int width, int height, int scale) {
 		this.width = width;
 		this.height = height;
-		pixels = new int[width * height];
+		this.scale = scale;
+		pixels = new int[width * height * scale * scale];
+		image = new BufferedImage(width * scale, height * scale, BufferedImage.TYPE_INT_RGB);
+		imagePixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	}
 
 	/**
@@ -37,6 +50,10 @@ public class Screen {
 
 	public int getHeight() {
 		return height;
+	}
+
+	public int getScale() {
+		return scale;
 	}
 
 	public int[] getPixels() {
@@ -70,7 +87,11 @@ public class Screen {
 				int xa = x + xp;
 				if (xa < -tile.sprite.SIZE_X || xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) xa = 0;
-				pixels[xa + ya * width] = tile.sprite.pixels[x + y * tile.sprite.SIZE_X];
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						pixels[(xa * scale + scaleOffX) + (ya * scale + scaleOffY) * width * scale] = tile.sprite.pixels[x + y * tile.sprite.SIZE_X];
+					}
+				}
 			}
 		}
 	}
@@ -87,7 +108,11 @@ public class Screen {
 				int xa = x + xp;
 				if (xa < -tile.sprite.SIZE_X || xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) xa = 0;
-				setPixel(tile.sprite.pixels[x + y * tile.sprite.SIZE_X], xa, ya);
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						setPixel(tile.sprite.pixels[x + y * tile.sprite.SIZE_X], xa * scale + scaleOffX, ya * scale + scaleOffY);
+					}
+				}
 			}
 		}
 	}
@@ -111,7 +136,11 @@ public class Screen {
 				int xa = x + xp;
 				if (xa < -p.getSpriteSizeX() || xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) xa = 0;
-				setPixel(p.getSprite().pixels[x + y * p.getSpriteSizeX()], xa, ya);
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						setPixel(p.getSprite().pixels[x + y * p.getSpriteSizeX()], xa * scale + scaleOffX, ya * scale + scaleOffY);
+					}
+				}
 			}
 		}
 	}
@@ -144,7 +173,11 @@ public class Screen {
 				if (xa < -sprite.SIZE_X || xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) continue;
 
-				setPixel(sprite.pixels[xs + ys * sprite.SIZE_X], xa, ya);
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						setPixel(sprite.pixels[xs + ys * sprite.SIZE_X], xa * scale + scaleOffX, ya * scale + scaleOffY);
+					}
+				}
 			}
 		}
 	}
@@ -170,7 +203,11 @@ public class Screen {
 				if (xa < -sprite.SIZE_X || xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) continue;
 
-				setPixel(sprite.pixels[xs + ys * sprite.SIZE_X], xa, ya);
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						setPixel(sprite.pixels[xs + ys * sprite.SIZE_X], xa * scale + scaleOffX, ya * scale + scaleOffY);
+					}
+				}
 			}
 		}
 	}
@@ -185,16 +222,75 @@ public class Screen {
 				int xa = x + xp;
 				if (xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) continue;
-				setPixel(sprite.pixels[x + y * sprite.SIZE_X], xa, ya);
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						setPixel(sprite.pixels[x + y * sprite.SIZE_X], xa * scale + scaleOffX, ya * scale + scaleOffY);
+					}
+				}
 			}
 		}
 	}
 
+	public void renderSpriteFix(Sprite sprite, int xp, int yp) {
+		for (int y = 0; y < sprite.SIZE_Y; y++) {
+			int ya = y + yp;
+			for (int x = 0; x < sprite.SIZE_X; x++) {
+				int xa = x + xp;
+				if (xa >= width || ya < 0 || ya >= height) break;
+				if (xa < 0) continue;
+				for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+					for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+						setPixel(sprite.pixels[x + y * sprite.SIZE_X], xa * scale + scaleOffX, ya * scale + scaleOffY);
+					}
+				}
+			}
+		}
+	}
+
+	public void renderText(String text, int xp, int yp, String fontName, float size, int color) {
+		xp -= xOffset;
+		yp -= yOffset;
+
+		System.arraycopy(pixels, 0, imagePixels, 0, imagePixels.length);
+
+		Graphics2D g = (Graphics2D) image.getGraphics();
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		Font font = FontLibrary.getFont(fontName);
+		font = font.deriveFont(size);
+		g.setFont(font);
+		g.setColor(new Color(color));
+
+		g.drawString(text, xp * scale, yp * scale);
+
+		System.arraycopy(imagePixels, 0, pixels, 0, pixels.length);
+
+		g.dispose();
+	}
+
+	public void renderTextFix(String text, int xp, int yp, String fontName, float size, int color) {
+		System.arraycopy(pixels, 0, imagePixels, 0, imagePixels.length);
+
+		Graphics2D g = (Graphics2D) image.getGraphics();
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		Font font = FontLibrary.getFont(fontName);
+		font = font.deriveFont(size);
+		g.setFont(font);
+		g.setColor(new Color(color));
+
+		g.drawString(text, xp * scale, yp * scale);
+
+		System.arraycopy(imagePixels, 0, pixels, 0, pixels.length);
+
+		g.dispose();
+	}
+
 	public void setPixel(int col, int xa, int ya) {
 		// If the color is 0xFF00FF don't render that pixel
-		if (xa + ya * width >= pixels.length || xa + ya * width < 0) return;
+		if (xa + ya * width * scale >= pixels.length || xa + ya * width * scale < 0) return;
 		if (col != 0xffff00ff && (col | 0x11ffffff) == 0xffffffff)
-			pixels[xa + ya * width] = col;
+			pixels[xa + ya * width * scale] = col;
 
 		else if (col != 0xffff00ff && (col | 0x00ffffff) != 0x00ffffff) {
 
@@ -203,7 +299,7 @@ public class Screen {
 			float g = (col & 0xff00) | 0x1100;
 			float b = (col & 0xff) | 0x11;
 
-			float oldcol = pixels[xa + ya * width];
+			float oldcol = pixels[xa + ya * width * scale];
 			float oldr = ((int) oldcol & 0xff0000) | 0x110000;
 			float oldg = ((int) oldcol & 0xff00) | 0x1100;
 			float oldb = ((int) oldcol & 0xff) | 0x11;
@@ -224,7 +320,7 @@ public class Screen {
 
 			//System.out.println(Integer.toHexString((int) newr) + ", " + Integer.toHexString((int) newg) + ", " + Integer.toHexString((int) newb));
 
-			pixels[xa + ya * width] = 0xff000000 | ((newr << 16)) | ((newg << 8)) | ((newb));
+			pixels[xa + ya * width * scale] = 0xff000000 | ((newr << 16)) | ((newg << 8)) | ((newb));
 
 		}
 	}

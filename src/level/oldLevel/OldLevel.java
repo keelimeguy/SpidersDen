@@ -86,9 +86,9 @@ public abstract class OldLevel {
 		// Determine the corner pins, i.e. the (x,y) values of the tiles in the corners of the viewable screen
 		// (In tile units not pixels)
 		int x0 = xScroll >> 4;
-		int x1 = ((xScroll + screen.width) >> 4) + 1;
+		int x1 = ((xScroll + screen.getWidth()) >> 4) + 1;
 		int y0 = yScroll >> 4;
-		int y1 = ((yScroll + screen.height) >> 4) + 1;
+		int y1 = ((yScroll + screen.getHeight()) >> 4) + 1;
 
 		// Renders all the tiles in the viewable screen at their (x,y) positions
 		// (In tile units not pixels)
