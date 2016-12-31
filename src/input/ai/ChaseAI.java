@@ -15,6 +15,10 @@ public abstract class ChaseAI extends AI {
 		this.target = target;
 	}
 
+	public Mob getTarget() {
+		return target;
+	}
+	
 	public void update() {
 		reset();
 		ArrayList<int[]> path = AStar.findPath(level.getWidth(), level.getHeight(), master.getX(), master.getY(), target.getX(), target.getY(), level.getCollidable(), true);

@@ -6,38 +6,49 @@ import graphics.Sprite;
 import input.Mouse;
 
 public class MenuElement extends TextField {
+	protected Menu parent = null;
 	protected boolean clickable = true, press = false, clicked = false, hover = false;
 	protected int baseColor, hoverColor;
 	protected Sprite clickSprite, baseSprite;
+	protected String name;
 
-	public MenuElement(int x, int y, Sprite sprite, Border border) {
+	public MenuElement(int x, int y, Sprite sprite, Border border, String name, Menu menu) {
 		super(x, y, sprite, border);
 		baseColor = 0xffffff;
 		hoverColor = 0xffff00;
 		baseSprite = this.sprite;
 		clickSprite = this.sprite;
+		parent = menu;
+		setText(name);
 	}
 
-	public MenuElement(int x, int y, Sprite sprite, Border border, Sprite clickSprite) {
+	public MenuElement(int x, int y, Sprite sprite, Border border, Sprite clickSprite, String name, Menu menu) {
 		super(x, y, sprite, border);
 		baseColor = 0xffffff;
 		hoverColor = 0xffff00;
 		baseSprite = this.sprite;
-		this.clickSprite = new Sprite(width - 2 * borderWidth, height - 2 * borderWidth, clickSprite);
+		this.clickSprite = new Sprite(width - borderLeftWidth - borderRightWidth, height - borderTopWidth - borderBottomWidth, clickSprite);
+		parent = menu;
+		setText(name);
 	}
 
 	public void setHoverColor(int hoverColor) {
 		this.hoverColor = hoverColor;
 	}
 
+	public void setText(String text) {
+		super.setText(text);
+		this.name = text;
+	}
+
 	public void click(Game game) {
-		game.getTextField().setText(text[0]);
+		parent.click(game, name);
 	}
 
 	public void update(Game game) {
 		if (hidden) return;
 		super.update(game);
-		if (game.mouseInBounds(x, y, sprite.SIZE_X, sprite.SIZE_Y)) {
+		if (game.mouseInBounds(x + borderLeftWidth, y + borderTopWidth, sprite.SIZE_X, sprite.SIZE_Y)) {
 			hover = true;
 			if (Mouse.getB() == 1 && clickable && !press) {
 				clicked = true;
@@ -73,7 +84,7 @@ public class MenuElement extends TextField {
 
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 		super.render(screen);
 	}
-
 }

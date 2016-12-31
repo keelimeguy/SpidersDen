@@ -13,6 +13,10 @@ public abstract class AI extends Keyboard {
 		this.master = master;
 	}
 
+	public Mob getTarget() {
+		return null;
+	}
+	
 	public void init(Mob master) {
 		this.master = master;
 	}

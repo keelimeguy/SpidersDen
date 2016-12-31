@@ -1,10 +1,5 @@
 package game;
 
-import graphics.Screen;
-import input.Keyboard;
-import input.Mouse;
-import input.ai.SpiderAI;
-
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -13,38 +8,49 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
+import entity.mob.Mob;
+import entity.mob.Player;
+import entity.mob.Spider;
+import entity.ui.TextField;
+import entity.ui.uicontrol.DialogueController;
+import entity.ui.uicontrol.MenuController;
+import graphics.Screen;
+import graphics.Sprite;
+import input.Keyboard;
+import input.Mouse;
+import input.ai.SpiderAI;
 import level.Level;
 import level.LevelData;
 import sound.LoopStart;
 import sound.MusicPlayer;
 import sound.SoundPlayer;
-import entity.mob.Mob;
-import entity.mob.Player;
-import entity.mob.Spider;
 
 public class GameTest extends Game implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	private static int width = 300;
-	private static int height = width / 16 * 9;
-	private static int scale = 3; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
-	private static String title = "2DGame";
+	private static int width = Game.width;
+	private static int height = Game.height;
+	private static int scale = Game.scale; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
+	private static String title = Game.title;
 
 	private int anim = 0, speed = 20, step = 0;
 
 	private Thread thread;
 	private JFrame frame;
+	private DialogueController dialogueField;
+	private TextField textField;
+	private MenuController menuController;
 	private Keyboard key;
 	private Level level;
 	private Mob player;
-	private boolean running = false;
+	private boolean running = false, paused = false;
 
 	private Screen screen;
 	private static MusicPlayer snd;
 	private static SoundPlayer noise;
 
 	// The image which will be drawn in the game window
-	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	private BufferedImage image = new BufferedImage(width * scale, height * scale, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
 	/**
@@ -58,6 +64,13 @@ public class GameTest extends Game implements Runnable {
 		frame = new JFrame();
 		key = new Keyboard();
 		level = LevelData.fire;
+		level.init(this);
+
+		dialogueField = new DialogueController(0, 0, width, height);
+		dialogueField.setKeyboard(key);
+
+		menuController = new MenuController();
+		menuController.setKeyboard(key);
 
 		define();
 
@@ -76,6 +89,7 @@ public class GameTest extends Game implements Runnable {
 		level.empty();
 		player.init(level);
 		level.add(new Spider(8 << 4, 7 << 4, new SpiderAI(level, null, player)));
+		level.addPoints(-level.getScore());
 	}
 
 	/**
@@ -102,6 +116,18 @@ public class GameTest extends Game implements Runnable {
 		return player;
 	}
 
+	public TextField getTextField() {
+		return textField;
+	}
+
+	public DialogueController getDialogueController() {
+		return dialogueField;
+	}
+
+	public boolean mouseInBounds(int x, int y, int sizeX, int sizeY) {
+		return Mouse.getX() / screen.getScale() > x * getWindowWidth() / (screen.getWidth() * screen.getScale()) && Mouse.getX() / screen.getScale() < (sizeX + x) * getWindowWidth() / (screen.getWidth() * screen.getScale()) && Mouse.getY() / screen.getScale() > y * getWindowHeight() / (screen.getHeight() * screen.getScale()) && Mouse.getY() / screen.getScale() < (sizeY + y) * getWindowHeight() / (screen.getHeight() * screen.getScale());
+	}
+
 	/**
 	 * Starts the game thread
 	 */
@@ -118,15 +144,24 @@ public class GameTest extends Game implements Runnable {
 	public synchronized void stop() {
 		running = false;
 		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		try {
+			snd.reset();
 			snd.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void pause(boolean paused) {
+		this.paused = paused;
+	}
+
+	public boolean isPaused() {
+		return paused;
 	}
 
 	/**
@@ -138,16 +173,20 @@ public class GameTest extends Game implements Runnable {
 		final double ns = 1000000000.0 / 60.0;
 		double delta = 0;
 		int frames = 0, updates = 0;
-		requestFocus();
 
-		String audioFilePath = "/Res/Music/child.wav";
-		snd.playMusic(audioFilePath, LoopStart.CHILD, -1);
+		String audioFilePath = "/Music/epic.wav";
+		snd.playMusic(audioFilePath, LoopStart.EPIC, -1);
+
+		requestFocus();
 
 		// The game loop
 		while (running) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
+
+			// Limit delay recovery to half a second
+			if (delta >= 30) delta = 30;
 
 			// Update 60 times a second
 			while (delta >= 1) {
@@ -182,19 +221,20 @@ public class GameTest extends Game implements Runnable {
 			anim = 0;
 
 		if (anim % speed == speed - 1) step++;
-		if (key.shift && step >= 1) {
+
+		if (key.shift && step >= 1 && !paused) {
 			if (level == LevelData.test) {
-				String audioFilePath = "/Res/Music/epic.wav";
+				String audioFilePath = "/Music/epic.wav";
 				snd.reset();
 				snd.playMusic(audioFilePath, LoopStart.EPIC, -1);
 				level = LevelData.fire;
 			} else if (level == LevelData.fire) {
-				String audioFilePath = "/Res/Music/funky.wav";
+				String audioFilePath = "/Music/funky.wav";
 				snd.reset();
 				snd.playMusic(audioFilePath, LoopStart.FUNKY, -1);
 				level = LevelData.water;
 			} else if (level == LevelData.water) {
-				String audioFilePath = "/Res/Music/child.wav";
+				String audioFilePath = "/Music/child.wav";
 				snd.reset();
 				snd.playMusic(audioFilePath, LoopStart.CHILD, -1);
 				level = LevelData.test;
@@ -202,12 +242,22 @@ public class GameTest extends Game implements Runnable {
 			step = anim = 0;
 			define();
 		}
+
+		if (key.n1) level.setLight(0);
+		if (key.n2) level.setLight(1);
+		if (key.n3) level.setLight(2);
+		if (key.n4) level.setLight(3);
+		if (key.n5) level.setLight(4);
+
 		int xScroll = player.getX() - screen.getWidth() / 2;
 		int yScroll = player.getY() - screen.getHeight() / 2;
 		key.update();
-		player.update(this);
-		//level.addEnemies();
-		level.update(xScroll, yScroll, this);
+		if (!paused) {
+			player.update(this);
+			level.update(xScroll, yScroll, this);
+			dialogueField.update(this);
+		}
+		menuController.update(this);
 	}
 
 	/**
@@ -235,6 +285,16 @@ public class GameTest extends Game implements Runnable {
 		player.render(screen);
 
 		level.renderTop(xScroll, yScroll, screen);
+		player.renderTop(screen);
+
+		if (Sprite.fogOfWar[level.getLight()] != null) screen.renderSpritePreserve(Sprite.fogOfWar[level.getLight()], player.getX() - Sprite.fogOfWar[level.getLight()].SIZE_X / (2 * scale), player.getY() - Sprite.fogOfWar[level.getLight()].SIZE_Y / (2 * scale));
+
+		screen.renderBoxFix(0, 0, width, height / 8, 0xff000000);
+		screen.renderBoxFix(0, 0, width / 8, height, 0xff000000);
+		screen.renderBoxFix(width - (int) (width / 8), 0, width / 8, height, 0xff000000);
+
+		dialogueField.render(screen);
+		menuController.render(screen);
 
 		// Copy the screen pixels to the image to be drawn
 		System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);

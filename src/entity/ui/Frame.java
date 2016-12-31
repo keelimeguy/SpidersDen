@@ -9,7 +9,7 @@ public class Frame extends Entity {
 	protected Sprite sprite;
 	protected Border border;
 	protected int width, height;
-	protected int borderWidth;
+	protected int borderTopWidth, borderBottomWidth, borderLeftWidth, borderRightWidth;
 
 	public Frame(int x, int y, Sprite sprite, Border border) {
 		this.x = x;
@@ -18,8 +18,11 @@ public class Frame extends Entity {
 		border.setY(y);
 		width = border.getWidth();
 		height = border.getHeight();
-		borderWidth = border.getBorderWidth();
-		this.sprite = new Sprite(width - 2 * borderWidth, height - 2 * borderWidth, sprite);
+		borderTopWidth = border.getBorderTopWidth();
+		borderBottomWidth = border.getBorderBottomWidth();
+		borderLeftWidth = border.getBorderLeftWidth();
+		borderRightWidth = border.getBorderRightWidth();
+		this.sprite = new Sprite(width - borderLeftWidth - borderRightWidth, height - borderTopWidth - borderBottomWidth, sprite);
 		this.border = border;
 	}
 
@@ -29,8 +32,9 @@ public class Frame extends Entity {
 
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 		border.render(screen);
-		screen.renderSpriteFix(sprite, x + borderWidth, y + borderWidth);
+		screen.renderSpriteFix(sprite, x + borderLeftWidth, y + borderTopWidth);
 
 	}
 }

@@ -1,24 +1,27 @@
 package level;
 
-import entity.Entity;
-import entity.projectile.Projectile;
-import game.Game;
-import graphics.Screen;
-import graphics.Tileset;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Entity;
+import entity.mob.Spider;
+import entity.projectile.Projectile;
+import game.Game;
+import graphics.Screen;
+import graphics.SpiderSprite;
+import graphics.Tileset;
+import input.ai.SpiderAI;
 import level.tile.AnimatedTile;
 import level.tile.BasicTile;
 import level.tile.Block;
 import level.tile.SolidType;
 
 public class Level {
-
 	protected final int FRAMES;
-	protected int width, height, curFrame = 0, anim = 0, speed = 20, step = 1;
+	protected Game game = null;
+	protected int width, height, curFrame = 0, anim = 0, speed = 20, step = 1, light = 2, score = 0;
 	protected int[][] tiles, tilesOver, tilesTop, collides, collidable, trueCollidable;
+	protected boolean gameover = false;
 	protected Tileset tileset;
 
 	protected List<EnemySpawner> enemySpawner = new ArrayList<EnemySpawner>();
@@ -94,6 +97,124 @@ public class Level {
 
 	public int getHeight() {
 		return height;
+	}
+
+	public void setLight(int light) {
+		this.light = light;
+	}
+
+	public int getLight() {
+		return light;
+	}
+
+	public void init(Game game) {
+		gameover = false;
+		this.game = game;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void gameOver() {
+		if (!gameover) {
+			gameover = true;
+			game.getDialogueController().sendDialogue("You Died!\n Your Score: " + score, null);
+			game.pause(true);
+		}
+	}
+	
+	public boolean isGameOver() {
+		return gameover;
+	}
+
+	public void addPoints(int points) {
+		score += points;
+		if (!gameover && game.getDialogueController() != null) game.getDialogueController().sendDialogue("Score:\n" + score, null);
+
+		if (score >= 1000000 && score - points < 1000000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 1000, 50), this, 30));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nEPIC WAVE!", null);
+		} else if (score >= 100000 && score - points < 100000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 200));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverDots, 300, 100), this, 200));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 300));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 10000 && score - points < 10000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverDots, 300, 100), this, 200));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 500));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 7500 && score - points < 7500) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilver, 300, 50), this, 200));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverDots, 300, 100), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 1000));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 1000));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 5000 && score - points < 5000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilver, 300, 50), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverDots, 300, 100), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverSwirl, 500, 200), this, 1200));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 4000 && score - points < 4000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 600));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilver, 300, 50), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilverDots, 300, 100), this, 500));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 3000 && score - points < 3000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedDots, 300, 30), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 500));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderSilver, 300, 50), this, 800));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 2500 && score - points < 2500) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlueSwirl, 200, 50), this, 800));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRed, 250, 30), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedDots, 300, 30), this, 600));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedSwirl, 400, 30), this, 800));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 2000 && score - points < 2000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlueDots, 200, 40), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlueSwirl, 200, 50), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRed, 250, 30), this, 600));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderRedDots, 300, 30), this, 800));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 1000 && score - points < 1000) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlackSwirl, 120, 25), this, 500));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlue, 120, 40), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlueDots, 200, 40), this, 400));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlueSwirl, 200, 50), this, 600));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 500 && score - points < 500) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlackDots, 100, 20), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlackSwirl, 120, 30), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlue, 120, 40), this, 400));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 300 && score - points < 300) {
+			enemySpawner.clear();
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlackDots, 100, 20), this, 300));
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlackSwirl, 120, 30), this, 500));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		} else if (score >= 100 && score - points < 100) {
+			addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(this, null, game.getPlayer()), SpiderSprite.spiderBlackDots, 100, 20), this, 500));
+			if (!gameover) game.getDialogueController().sendDialogue("Score:\n" + score + "\nNEW WAVE!", null);
+		}
 	}
 
 	protected void setTrueCollidable() {
@@ -198,7 +319,10 @@ public class Level {
 			}
 		}
 		for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).update(game);
+			if (entities.get(i).isRemoved())
+				remove(entities.get(i));
+			else
+				entities.get(i).update(game);
 		}
 
 		for (int i = 0; i < projectiles.size(); i++) {
@@ -284,6 +408,10 @@ public class Level {
 		for (int i = 0; i < projectiles.size(); i++) {
 			projectiles.get(i).render(screen);
 		}
+
+		for (int i = 0; i < entities.size(); i++) {
+			entities.get(i).renderTop(screen);
+		}
 	}
 
 	/**
@@ -293,6 +421,15 @@ public class Level {
 	public void add(Entity e) {
 		entities.add(e);
 		e.init(this);
+	}
+
+	/**
+	 * Removes an entity from the level.
+	 * @param e : The entity to be removed.
+	 */
+	public void remove(Entity e) {
+		entities.remove(e);
+		e.remove();
 	}
 
 	/**

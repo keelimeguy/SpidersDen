@@ -2,6 +2,7 @@ package graphics;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -19,6 +20,7 @@ public class Screen {
 	private int[] imagePixels;
 
 	private int xOffset, yOffset;
+	private int topBand, leftBand, rightBand, bottomBand;
 
 	/**
 	 * Creates a screen of a given width and height
@@ -231,6 +233,21 @@ public class Screen {
 		}
 	}
 
+	public void renderSpritePreserve(Sprite sprite, int xp, int yp) {
+		xp -= xOffset;
+		yp -= yOffset;
+
+		for (int y = 0; y < sprite.SIZE_Y; y++) {
+			int ya = y + yp * scale;
+			for (int x = 0; x < sprite.SIZE_X; x++) {
+				int xa = x + xp * scale;
+				if (xa >= width * scale || ya < 0 || ya >= height * scale) break;
+				if (xa < 0) continue;
+				setPixel(sprite.pixels[x + y * sprite.SIZE_X], xa, ya);
+			}
+		}
+	}
+
 	public void renderSpriteFix(Sprite sprite, int xp, int yp) {
 		for (int y = 0; y < sprite.SIZE_Y; y++) {
 			int ya = y + yp;
@@ -274,8 +291,10 @@ public class Screen {
 		Graphics2D g = (Graphics2D) image.getGraphics();
 
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
 		Font font = FontLibrary.getFont(fontName);
 		font = font.deriveFont(size);
+
 		g.setFont(font);
 		g.setColor(new Color(color));
 
@@ -284,6 +303,86 @@ public class Screen {
 		System.arraycopy(imagePixels, 0, pixels, 0, pixels.length);
 
 		g.dispose();
+	}
+
+	public void renderTextCenter(String text, int xp, int yp, int width, int height, String fontName, float size, int color) {
+		xp -= xOffset;
+		yp -= yOffset;
+
+		System.arraycopy(pixels, 0, imagePixels, 0, imagePixels.length);
+
+		Graphics2D g = (Graphics2D) image.getGraphics();
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		Font font = FontLibrary.getFont(fontName);
+		font = font.deriveFont(size);
+
+		FontMetrics metrics = g.getFontMetrics(font);
+		int x = xp * scale + (width * scale - metrics.stringWidth(text)) / 2;
+		int y = yp * scale + ((height * scale - metrics.getHeight()) / 2) + metrics.getAscent();
+
+		g.setFont(font);
+		g.setColor(new Color(color));
+
+		g.drawString(text, x, y);
+
+		System.arraycopy(imagePixels, 0, pixels, 0, pixels.length);
+
+		g.dispose();
+	}
+
+	public void renderTextCenterFix(String text, int xp, int yp, int width, int height, String fontName, float size, int color) {
+
+		System.arraycopy(pixels, 0, imagePixels, 0, imagePixels.length);
+
+		Graphics2D g = (Graphics2D) image.getGraphics();
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		Font font = FontLibrary.getFont(fontName);
+		font = font.deriveFont(size);
+
+		FontMetrics metrics = g.getFontMetrics(font);
+		int x = xp * scale + (width * scale - metrics.stringWidth(text)) / 2;
+		int y = yp * scale + ((height * scale - metrics.getHeight()) / 2) + metrics.getAscent();
+
+		g.setFont(font);
+		g.setColor(new Color(color));
+
+		g.drawString(text, x, y);
+
+		System.arraycopy(imagePixels, 0, pixels, 0, pixels.length);
+
+		g.dispose();
+	}
+
+	public void renderBox(int xp, int yp, int width, int height, int color) {
+		// Updates the position given the screen offset
+				yp -= yOffset;
+				xp -= xOffset;
+
+		for (int y = 0; y < height * scale; y++) {
+			int ya = y + yp * scale;
+			for (int x = 0; x < width * scale; x++) {
+				int xa = x + xp * scale;
+				if (xa >= this.width * scale || ya < 0 || ya >= this.height * scale) break;
+				if (xa < 0) continue;
+				pixels[xa + ya * this.width * scale] = color;
+			}
+		}
+	}
+	
+	public void renderBoxFix(int xp, int yp, int width, int height, int color) {
+		for (int y = 0; y < height * scale; y++) {
+			int ya = y + yp * scale;
+			for (int x = 0; x < width * scale; x++) {
+				int xa = x + xp * scale;
+				if (xa >= this.width * scale || ya < 0 || ya >= this.height * scale) break;
+				if (xa < 0) continue;
+				pixels[xa + ya * this.width * scale] = color;
+			}
+		}
 	}
 
 	public void setPixel(int col, int xa, int ya) {
@@ -325,6 +424,14 @@ public class Screen {
 		}
 	}
 
+	public void setPixelScale(int col, int xa, int ya) {
+		for (int scaleOffY = 0; scaleOffY < scale; scaleOffY++) {
+			for (int scaleOffX = 0; scaleOffX < scale; scaleOffX++) {
+				setPixel(col, xa * scale + scaleOffX, ya * scale + scaleOffY);
+			}
+		}
+	}
+	
 	/**
 	 * Sets the screen offset
 	 * @param xOffset : The x offset of the screen

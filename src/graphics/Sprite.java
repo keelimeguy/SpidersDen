@@ -1,18 +1,14 @@
 package graphics;
 
-import game.Game;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import javax.imageio.ImageIO;
+
+import game.Game;
 
 public class Sprite {
 
@@ -22,7 +18,17 @@ public class Sprite {
 	protected SpriteSheet sheet;
 	protected String path;
 
-	public static Sprite voidSprite = new Sprite(16, 0x1b87e0);
+	//public static Sprite voidSprite = new Sprite(16, 0x1b87e0);
+	public static Sprite voidSprite = new Sprite(16, 0x0);
+	public static Sprite[] fogOfWar;
+	static {
+		Sprite fogOfWarBase = new Sprite(1000, 500, "/Sprites/fog_of_war.png");
+		Sprite s1 = new Sprite(1024, 512, fogOfWarBase).cropToFit(true);
+		Sprite s2 = new Sprite(Game.width * Game.scale * 2, Game.height * Game.scale * 2, s1).cropToFit(true);
+		Sprite s3 = new Sprite(Game.width * Game.scale * 2, Game.height * Game.scale * 2, s2).cropToFit(true);
+		Sprite s4 = new Sprite(Game.width * Game.scale * 2, Game.height * Game.scale * 2, s3).cropToFit(true);
+		fogOfWar = new Sprite[] { s1, s2, s3, s4, null };
+	}
 
 	/**
 	 * Creates a sprite from a sprite sheet
@@ -113,6 +119,26 @@ public class Sprite {
 			}
 
 		return getPixelsFromData(newData, sizex, sizey);
+	}
+
+	protected Sprite cropToFit(boolean preserve) {
+		if (!preserve) return crop(((SIZE_X - Game.width) / 2), (SIZE_X - Game.width - (int) ((SIZE_X - Game.width) / 2)), ((SIZE_Y - Game.height) / 2), (SIZE_Y - Game.height - (int) ((SIZE_Y - Game.height) / 2)));
+		return crop(((SIZE_X - Game.width * Game.scale) / 2), (SIZE_X - Game.width * Game.scale - (int) ((SIZE_X - Game.width * Game.scale) / 2)), ((SIZE_Y - Game.height * Game.scale) / 2), (SIZE_Y - Game.height * Game.scale - (int) ((SIZE_Y - Game.height * Game.scale) / 2)));
+	}
+
+	protected Sprite crop(int left, int right, int top, int bottom) {
+		if (left < 0) left = 0;
+		if (right < 0) right = 0;
+		if (top < 0) top = 0;
+		if (bottom < 0) bottom = 0;
+		if (SIZE_X - left - right < 0 || SIZE_Y - top - bottom < 0) return voidSprite;
+		Sprite ret = new Sprite(SIZE_X - left - right, SIZE_Y - top - bottom, this);
+		for (int j = 0; j < ret.SIZE_Y; j++) {
+			for (int i = 0; i < ret.SIZE_X; i++) {
+				ret.pixels[i + j * ret.SIZE_X] = pixels[i + left + (j + top) * SIZE_X];
+			}
+		}
+		return ret;
 	}
 
 	protected int[] getData(Sprite sprite) {
@@ -292,7 +318,7 @@ public class Sprite {
 				boolean found = false;
 				for (int x : exclude)
 					if (x == color.getRGB()) found = true;
-				
+
 				if (!found)
 					sprite.pixels[i + j * sprite.SIZE_X] = ncolor;
 				else
@@ -463,10 +489,7 @@ public class Sprite {
 	 */
 	protected void loadFromPath() {
 		try {
-			URL location = Game.class.getProtectionDomain().getCodeSource().getLocation();
-			File file = new File(location.getFile());
-			BufferedImage image = ImageIO.read(new File(file.getParentFile() + path));
-			//BufferedImage image = ImageIO.read(Game.class.getResource(path));
+			BufferedImage image = ImageIO.read(Sprite.class.getResource(path));
 			int w = image.getWidth();
 			int h = image.getHeight();
 			image.getRGB(0, 0, w, h, pixels, 0, w);

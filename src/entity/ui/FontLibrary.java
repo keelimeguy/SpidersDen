@@ -1,12 +1,8 @@
 package entity.ui;
 
 import java.awt.Font;
-import java.io.File;
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import game.Game;
 
 public class FontLibrary {
 
@@ -29,11 +25,9 @@ public class FontLibrary {
 				return font;
 			}
 		}
-		String path = "/Res/Fonts/" + name;
+		String path = "/Fonts/" + name;
 		try {
-			URL location = Game.class.getProtectionDomain().getCodeSource().getLocation();
-			File file = new File(location.getFile());
-			font = Font.createFont(Font.TRUETYPE_FONT, new File(file.getParentFile() + path));
+			font = Font.createFont(Font.TRUETYPE_FONT, FontLibrary.class.getResource(path).openStream());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.err.println(path + " not loaded.  Using serif font.");

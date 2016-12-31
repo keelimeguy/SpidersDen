@@ -1,24 +1,25 @@
 package entity.mob.test;
 
+import entity.mob.Mob;
+import entity.projectile.FireballProjectile;
+import entity.projectile.Projectile;
+import entity.ui.StatusBar;
 import game.Game;
 import graphics.FireballSprite;
 import graphics.Screen;
 import graphics.SpiderSprite;
 import graphics.Sprite;
-import input.Keyboard;
 import input.Mouse;
+import input.ai.AI;
 import level.tile.SolidType;
-import entity.mob.Mob;
-import entity.projectile.FireballProjectile;
-import entity.projectile.Projectile;
 
 public class SpiderTest extends Mob {
-	private Keyboard input;
-	private Sprite sprite;
+	private AI input;
 	private Sprite[][] sprites;
-	private int anim = 0, attackingSpeed = 1, dyingSpeed = 1;
+	private StatusBar healthBar;
+	private int anim = 0, deadAnim = 0, deadTime = 180, attackingSpeed = 1, dyingSpeed = 1, damage = 10;
 	private boolean walking = false, spaceFree = false, powered = false;
-	private boolean attacking = false, dying = false, dead = false;
+	private boolean attacking = false, attacked = false, dying = false, dead = false;
 
 	private int fireRate = 0;
 
@@ -28,7 +29,8 @@ public class SpiderTest extends Mob {
 	 * @param y : The starting y coordinate (in pixel units)
 	 * @param input : The Keyboard controller for this Spider
 	 */
-	public SpiderTest(int x, int y, Keyboard input) {
+	public SpiderTest(int x, int y, AI input) {
+		input.init(this);
 		this.x = x;
 		this.y = y;
 		this.input = input;
@@ -38,8 +40,43 @@ public class SpiderTest extends Mob {
 		animSpeed = 4;
 		attackingSpeed = 6;
 		dyingSpeed = 10;
-		moveSpeed = 2;
+		moveSpeed = 1;
 		dead = false;
+		maxHealth = 100;
+		health = maxHealth;
+		healthBar = new StatusBar(x, y, sprite.SIZE_X / 2, 3, maxHealth, true, true);
+	}
+
+	public SpiderTest(int x, int y, AI input, Sprite[][] sprites) {
+		input.init(this);
+		this.x = x;
+		this.y = y;
+		this.input = input;
+		this.sprites = sprites;
+		sprite = this.sprites[0][0];
+		fireRate = FireballProjectile.FIRE_RATE;
+		animSpeed = 4;
+		attackingSpeed = 6;
+		dyingSpeed = 10;
+		moveSpeed = 1;
+		dead = false;
+		maxHealth = 100;
+		health = maxHealth;
+		healthBar = new StatusBar(x, y, sprite.SIZE_X / 2, 3, maxHealth, true, true);
+	}
+
+	public SpiderTest(int x, int y, AI input, SpiderTest spider) {
+		super(x, y, spider);
+		input.init(this);
+		this.input = input;
+		sprites = spider.sprites;
+		sprite = sprites[0][0];
+		fireRate = spider.fireRate;
+		attackingSpeed = spider.attackingSpeed;
+		dyingSpeed = spider.dyingSpeed;
+		dead = false;
+		collidable = true;
+		healthBar = new StatusBar(x, y, sprite.SIZE_X / 2, 3, maxHealth, true, true);
 	}
 
 	/**
@@ -47,12 +84,11 @@ public class SpiderTest extends Mob {
 	 */
 	public void update(Game game) {
 		if (hidden) return;
-		//int mx = (int) (((x / 16.0) + ((x + level.getWidth()) / 16.0) + 1.0) / 2.0 - .5);
-		//int my = (int) (((y / 16.0) + ((y + level.getHeight()) / 16.0) + 1.0) / 2.0 - .5);
-		//System.out.println(mx + ", " + my + "    " + (x >> 4) + ", " + (y >> 4) + "    " + ((x + level.getWidth()) >> 4) + ", " + ((y + level.getHeight()) >> 4));
 
 		int width = game.getWindowWidth();
 		int height = game.getWindowHeight();
+
+		input.update();
 
 		if (fireRate > 0) fireRate--;
 
@@ -73,6 +109,7 @@ public class SpiderTest extends Mob {
 			walking = false;
 			dying = true;
 			anim = 0;
+			collidable = false;
 		} else if (!attacking && !dying) {
 			if (input.up) dy--;
 			if (input.down) dy++;
@@ -124,9 +161,19 @@ public class SpiderTest extends Mob {
 		}
 		clear();
 		updateShooting(width, height);
+		healthBar.setValue(health);
+		healthBar.setX(x - sprite.SIZE_X / 4);
+		healthBar.setY(y - sprite.SIZE_Y / 3);
+		checkDeath();
 	}
 
 	public void checkDeath() {
+		if (dead == true) {
+			deadAnim++;
+			if (deadAnim >= deadTime / 2 && deadAnim % 4 == 0) visible = !visible;
+			if (deadAnim >= deadTime) remove();
+		}
+
 	}
 
 	/**
@@ -174,7 +221,7 @@ public class SpiderTest extends Mob {
 	private void updateShooting(int width, int height) {
 
 		// Shoot when mouse clicks
-		if (Mouse.getB() == 1 && fireRate <= 0) {
+		if (input.q && fireRate <= 0) {
 			double dx = Mouse.getX() - (width / 2);
 			double dy = Mouse.getY() - (height / 2);
 			double dir = Math.atan2(dy, dx);
@@ -188,6 +235,7 @@ public class SpiderTest extends Mob {
 	 */
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 
 		// Flip variable (0=none, 1=horizontal, 2=vertical, 3=both)
 		int flip = 0;
@@ -219,11 +267,28 @@ public class SpiderTest extends Mob {
 					sprite = sprites[0][6];
 				else if (anim % (4 * attackingSpeed) <= 2 * attackingSpeed)
 					sprite = sprites[0][7];
-				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed)
+				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed) {
 					sprite = sprites[0][8];
-				else {
+					if (!attacked) {
+						attacked = true;
+						Mob target = input.getTarget();
+						if (target != null) for (int c = 0; c < 4; c++) {
+							int xt = target.getCornerPinX(c, 0, 0, false);
+							int yt = target.getCornerPinY(c, 0, 0, false);
+							int xxt = target.getEdgePinX(c, 0, 0, false);
+							int yyt = target.getEdgePinY(c, 0, 0, false);
+							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+								target.hit(damage);
+								break;
+							}
+						}
+					}
+				} else {
 					sprite = sprites[0][2];
 					attacking = false;
+					attacked = false;
 				}
 			} else if (dying) {
 				if (!dead && anim % (4 * dyingSpeed) <= 1 * dyingSpeed)
@@ -265,11 +330,28 @@ public class SpiderTest extends Mob {
 					sprite = sprites[2][6];
 				else if (anim % (4 * attackingSpeed) <= 2 * attackingSpeed)
 					sprite = sprites[2][7];
-				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed)
+				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed) {
 					sprite = sprites[2][8];
-				else {
+					if (!attacked) {
+						attacked = true;
+						Mob target = input.getTarget();
+						if (target != null) for (int c = 0; c < 4; c++) {
+							int xt = target.getCornerPinX(c, 0, 0, false);
+							int yt = target.getCornerPinY(c, 0, 0, false);
+							int xxt = target.getEdgePinX(c, 0, 0, false);
+							int yyt = target.getEdgePinY(c, 0, 0, false);
+							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+								target.hit(damage);
+								break;
+							}
+						}
+					}
+				} else {
 					sprite = sprites[2][2];
 					attacking = false;
+					attacked = false;
 				}
 			} else if (dying) {
 				if (!dead && anim % (4 * dyingSpeed) <= 1 * dyingSpeed)
@@ -311,11 +393,28 @@ public class SpiderTest extends Mob {
 					sprite = sprites[3][6];
 				else if (anim % (4 * attackingSpeed) <= 2 * attackingSpeed)
 					sprite = sprites[3][7];
-				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed)
+				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed) {
 					sprite = sprites[3][8];
-				else {
+					if (!attacked) {
+						attacked = true;
+						Mob target = input.getTarget();
+						if (target != null) for (int c = 0; c < 4; c++) {
+							int xt = target.getCornerPinX(c, 0, 0, false);
+							int yt = target.getCornerPinY(c, 0, 0, false);
+							int xxt = target.getEdgePinX(c, 0, 0, false);
+							int yyt = target.getEdgePinY(c, 0, 0, false);
+							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+								target.hit(damage);
+								break;
+							}
+						}
+					}
+				} else {
 					sprite = sprites[3][2];
 					attacking = false;
+					attacked = false;
 				}
 			} else if (dying) {
 				if (!dead && anim % (4 * dyingSpeed) <= 1 * dyingSpeed)
@@ -357,11 +456,28 @@ public class SpiderTest extends Mob {
 					sprite = sprites[1][6];
 				else if (anim % (4 * attackingSpeed) <= 2 * attackingSpeed)
 					sprite = sprites[1][7];
-				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed)
+				else if (anim % (4 * attackingSpeed) <= 3 * attackingSpeed) {
 					sprite = sprites[1][8];
-				else {
+					if (!attacked) {
+						attacked = true;
+						Mob target = input.getTarget();
+						if (target != null) for (int c = 0; c < 4; c++) {
+							int xt = target.getCornerPinX(c, 0, 0, false);
+							int yt = target.getCornerPinY(c, 0, 0, false);
+							int xxt = target.getEdgePinX(c, 0, 0, false);
+							int yyt = target.getEdgePinY(c, 0, 0, false);
+							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+								target.hit(damage);
+								break;
+							}
+						}
+					}
+				} else {
 					sprite = sprites[1][2];
 					attacking = false;
+					attacked = false;
 				}
 			} else if (dying) {
 				if (!dead && anim % (4 * dyingSpeed) <= 1 * dyingSpeed)
@@ -385,6 +501,7 @@ public class SpiderTest extends Mob {
 
 		// Render the Spider sprite
 		screen.renderPlayer(xx, yy, sprite, flip);
+		healthBar.render(screen);
 
 		showCollision(screen);
 	}
@@ -396,35 +513,35 @@ public class SpiderTest extends Mob {
 		int dy = 0;
 		boolean mirror = false;
 		for (int c = 0; c < 4; c++) {
-			screen.setPixel(0xffffff00, getCornerPinX(c, dx, xOff, mirror) * 16 - screen.getXOffset(), getCornerPinY(c, dy, yOff, mirror) * 16 - screen.getYOffset());
-			screen.setPixel(0xffffffff, getEdgePinX(c, dx, xOff, mirror) * 16 - screen.getXOffset(), getEdgePinY(c, dy, yOff, mirror) * 16 - screen.getYOffset());
+			screen.setPixelScale(0xffffff00, getCornerPinX(c, dx, xOff, mirror) * 16 - screen.getXOffset(), getCornerPinY(c, dy, yOff, mirror) * 16 - screen.getYOffset());
+			screen.setPixelScale(0xffffffff, getEdgePinX(c, dx, xOff, mirror) * 16 - screen.getXOffset(), getEdgePinY(c, dy, yOff, mirror) * 16 - screen.getYOffset());
 			if (yOff >= 0) {
 				if (xOff <= 0) {
-					screen.setPixel(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? (((c % 2) + 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + (c / 2) * (sprite.SIZE_Y / 2 - yOff) - sprite.SIZE_Y / 4 + (mirror && c < 2 ? yOff : 0)) - screen.getYOffset());
+					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? (((c % 2) + 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + (c / 2) * (sprite.SIZE_Y / 2 - yOff) - sprite.SIZE_Y / 4 + (mirror && c < 2 ? yOff : 0)) - screen.getYOffset());
 					if (c < 2)
-						screen.setPixel(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixel(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 				} else {
 					if (c < 2)
-						screen.setPixel(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixel(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
-					screen.setPixel(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 - (mirror ? xOff : 0)) - sprite.SIZE_X / 4 + (((c % 2) + 1) % 2) * xOff) - screen.getXOffset(), ((y + dy) + (c / 2) * (sprite.SIZE_Y / 2 - yOff) - sprite.SIZE_Y / 4 + (mirror && c < 2 ? yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 - (mirror ? xOff : 0)) - sprite.SIZE_X / 4 + (((c % 2) + 1) % 2) * xOff) - screen.getXOffset(), ((y + dy) + (c / 2) * (sprite.SIZE_Y / 2 - yOff) - sprite.SIZE_Y / 4 + (mirror && c < 2 ? yOff : 0)) - screen.getYOffset());
 				}
 			} else {
 				if (xOff <= 0) {
-					screen.setPixel(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? (((c % 2) + 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + (c / 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (((c / 2) + 1) % 2) * yOff + (mirror ? (((c / 2)) % 2) * yOff : 0)) - screen.getYOffset());
+					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? (((c % 2) + 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + (c / 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (((c / 2) + 1) % 2) * yOff + (mirror ? (((c / 2)) % 2) * yOff : 0)) - screen.getYOffset());
 					if (c < 2)
-						screen.setPixel(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixel(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 				} else {
-					screen.setPixel(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 - (mirror ? xOff : 0)) - sprite.SIZE_X / 4 + (((c % 2) + 1) % 2) * xOff) - screen.getXOffset(), ((y + dy) + (c / 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (((c / 2) + 1) % 2) * yOff + (mirror ? (((c / 2)) % 2) * yOff : 0)) - screen.getYOffset());
+					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 - (mirror ? xOff : 0)) - sprite.SIZE_X / 4 + (((c % 2) + 1) % 2) * xOff) - screen.getXOffset(), ((y + dy) + (c / 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (((c / 2) + 1) % 2) * yOff + (mirror ? (((c / 2)) % 2) * yOff : 0)) - screen.getYOffset());
 					if (c < 2)
-						screen.setPixel(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixel(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 				}
 			}
 		}

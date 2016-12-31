@@ -1,16 +1,6 @@
 package sound;
 
-/**
- *
- * @author Mangusbrother 
- * with edits by keelimeguy
- */
-
-import game.Game;
-
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -31,9 +21,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class MusicPlayer extends Thread implements LineListener {
 
-	private URL location = null;
-	private File file = null;
-	
 	/**
 	 * this flag indicates whether the playback completes or not.
 	 */
@@ -45,7 +32,8 @@ public class MusicPlayer extends Thread implements LineListener {
 
 	public void run() {
 		while (true)
-			if (playing) play(path);
+			if (playing)
+				play(path);
 	}
 
 	/**
@@ -53,15 +41,10 @@ public class MusicPlayer extends Thread implements LineListener {
 	 * @param audioFilePath Path of the audio file.
 	 */
 	private void play(String audioFilePath) {
-		//File audioFile = new File(audioFilePath);
 
 		try {
-			if (location == null)
-				location = Game.class.getProtectionDomain().getCodeSource().getLocation();
-			if (file == null)
-				file = new File(location.getFile()).getParentFile();
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream((new File(file + audioFilePath)).toURI().toURL());//audioFile);
-			System.out.println("Playing: " + (new File(file + audioFilePath)).toString());
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(getClass().getResource(audioFilePath));
+			//System.out.println("Playing: " + getClass().getResource(audioFilePath).toString());
 			AudioFormat format = audioStream.getFormat();
 
 			DataLine.Info info = new DataLine.Info(Clip.class, format);
@@ -72,14 +55,16 @@ public class MusicPlayer extends Thread implements LineListener {
 
 			audioClip.open(audioStream);
 
-			if (reset) reset = false;
+			if (reset)
+				reset = false;
 
 			if (looping) {
 				FloatControl gainControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
 				gainControl.setValue(-20.0f);
-				//System.out.println(start);
-				if (start != end) audioClip.setLoopPoints(start, end);
-				//System.out.println(audioClip.getFrameLength());
+				// System.out.println(start);
+				if (start != end)
+					audioClip.setLoopPoints(start, end);
+				// System.out.println(audioClip.getFrameLength());
 				audioClip.loop(Clip.LOOP_CONTINUOUSLY);
 			} else {
 				audioClip.start();
@@ -95,8 +80,8 @@ public class MusicPlayer extends Thread implements LineListener {
 				} catch (InterruptedException ex) {
 					ex.printStackTrace();
 				}
-				if (reset) break;
-
+				if (reset)
+					break;
 			}
 			if (playCompleted || reset) {
 				playing = false;
@@ -113,11 +98,15 @@ public class MusicPlayer extends Thread implements LineListener {
 		} catch (IOException ex) {
 			System.out.println("Error playing the audio file.");
 			ex.printStackTrace();
-		} catch (Exception e){
+		} catch (Exception e) {
 			System.out.println("Error playing the audio file.");
 			e.printStackTrace();
 		}
 
+	}
+	
+	public String getPath() {
+		return path;
 	}
 
 	public void playMusic(String audioFilePath) {
@@ -148,8 +137,8 @@ public class MusicPlayer extends Thread implements LineListener {
 	public void reset() {
 		reset = true;
 		try {
-			System.out.println("RESET");
-			Thread.sleep(2);
+			//System.out.println("Reset MusicPlayer");
+			Thread.sleep(4);
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		}
@@ -164,14 +153,14 @@ public class MusicPlayer extends Thread implements LineListener {
 
 		if (type == LineEvent.Type.START) {
 			flag = false;
-			//System.out.println("Playback started.");
+			// System.out.println("Playback started.");
 
 		} else if (type == LineEvent.Type.STOP) {
 			if (!flag) {
 				flag = true;
 				playCompleted = true;
 			}
-			//System.out.println("Playback completed.");
+			// System.out.println("Playback completed.");
 		}
 
 	}

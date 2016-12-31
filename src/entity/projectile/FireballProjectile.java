@@ -90,8 +90,8 @@ public class FireballProjectile extends Projectile {
 
 	protected boolean collision(int dx, int dy) {
 		for (Entity e : level.getEntities())
-			if (e instanceof Mob) for (int c = 0; c < 4; c++) {
-				if (((Mob) e).isSolid()) {
+			if (((Mob) e).isSolid()) {
+				if (e instanceof Mob) for (int c = 0; c < 4; c++) {
 					int xt = ((Mob) e).getCornerPinX(c, 0, 0, false);
 					int yt = ((Mob) e).getCornerPinY(c, 0, 0, false);
 					int xxt = ((Mob) e).getEdgePinX(c, 0, 0, false);
@@ -111,6 +111,7 @@ public class FireballProjectile extends Projectile {
 	 */
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 		screen.renderProjectile((int) x - sprite.SIZE_X / 2, (int) y - sprite.SIZE_Y / 2, this);
 	}
 }

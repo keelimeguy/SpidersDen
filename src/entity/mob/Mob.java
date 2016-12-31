@@ -81,7 +81,8 @@ public abstract class Mob extends Entity {
 
 	public void hit(int damage) {
 		health -= damage;
-		checkDeath();
+		if (health < 0) health = 0;
+		if (health > maxHealth) health = maxHealth;
 	}
 
 	public void checkDeath() {
@@ -90,6 +91,7 @@ public abstract class Mob extends Entity {
 
 	public void update(Game game) {
 		if (hidden) return;
+		checkDeath();
 	}
 
 	protected void shoot(int x, int y, double dir) {
@@ -97,6 +99,7 @@ public abstract class Mob extends Entity {
 
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 	}
 
 	public int getCornerPinX(int c, int dx, int xOff, boolean mirror) {

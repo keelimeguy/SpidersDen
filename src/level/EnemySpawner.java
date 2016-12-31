@@ -18,6 +18,10 @@ public abstract class EnemySpawner {
 		this.level = level;
 		this.speed = speed;
 	}
+	
+	public Mob getMob() {
+		return mob;
+	}
 
 	public void update(Game game) {
 	}

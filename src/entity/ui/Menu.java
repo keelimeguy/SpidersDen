@@ -11,11 +11,15 @@ public class Menu extends Frame {
 	public Menu(int x, int y, Sprite sprite, Border border, String[] options) {
 		super(x, y, sprite, border);
 		size = options.length;
+		int yOff = (height - borderTopWidth - borderBottomWidth) - size * (int) ((height - borderTopWidth - borderBottomWidth) / size);
 		elements = new MenuElement[size];
 		for (int i = 0; i < size; i++) {
-			elements[i] = new MenuElement(x + borderWidth, y + borderWidth + i * (height - borderWidth * 2) / size, new Sprite(1, 1, 0x22ff33ff), new Border(width - borderWidth * 2, (height - borderWidth * 2) / size, 0xdd000000, 1), new Sprite(1, 1, 0x22117777));
-			elements[i].setText(options[i]);
+			elements[i] = new MenuElement(x + borderLeftWidth, y + yOff / 2 + borderTopWidth + i * (int) ((height - borderTopWidth - borderBottomWidth) / size), new Sprite(1, 1, 0x22ff33ff), new Border(width - borderLeftWidth - borderRightWidth, (height - borderTopWidth - borderBottomWidth) / size + 1, 0xdd000000, 1), new Sprite(1, 1, 0x22117777), options[i], this);
 		}
+	}
+
+	public void click(Game game, String option) {
+		//game.getDialogueController().sendDialogue("Congrats!!|You sent:\n" + option + "|I AM\nVERY\nPROUD!", null);
 	}
 
 	public void update(Game game) {
@@ -26,10 +30,9 @@ public class Menu extends Frame {
 
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 		super.render(screen);
 		for (MenuElement element : elements)
 			element.render(screen);
-
 	}
-
 }

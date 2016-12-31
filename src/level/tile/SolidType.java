@@ -17,5 +17,4 @@ public class SolidType {
 	public static final int NOTTOPRIGHT = 13;
 	public static final int NOTTOPLEFT = 14;
 	public static final int FULL = 15;
-	
 }

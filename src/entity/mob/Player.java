@@ -2,6 +2,7 @@ package entity.mob;
 
 import entity.projectile.FireballProjectile;
 import entity.projectile.Projectile;
+import entity.ui.StatusBar;
 import game.Game;
 import graphics.FireballSprite;
 import graphics.PlayerSprite;
@@ -15,8 +16,9 @@ public class Player extends Mob {
 
 	private Keyboard input;
 	private Sprite[][] sprites;
-	private int anim = 0;
-	private boolean walking = false, spaceFree = false, powered = false;
+	private int anim = 0, deadAnim = 0, deadTime = 180;
+	private StatusBar healthBar;
+	private boolean walking = false, spaceFree = false, powered = false, dead = false;
 
 	private int fireRate = 0;
 
@@ -33,6 +35,7 @@ public class Player extends Mob {
 		moveSpeed = 2;
 		maxHealth = 1000;
 		health = maxHealth;
+		healthBar = new StatusBar(x, y, sprite.SIZE_X, 3, maxHealth, true, true);
 	}
 
 	/**
@@ -52,6 +55,7 @@ public class Player extends Mob {
 		moveSpeed = 2;
 		maxHealth = 1000;
 		health = maxHealth;
+		healthBar = new StatusBar(x, y, sprite.SIZE_X, 3, maxHealth, true, true);
 	}
 
 	/**
@@ -113,6 +117,26 @@ public class Player extends Mob {
 		}
 		clear();
 		updateShooting(width, height);
+		healthBar.setValue(health);
+		healthBar.setX(x - sprite.SIZE_X / 2);
+		healthBar.setY(y - sprite.SIZE_Y / 2);
+		if (health <= 0) dead = true;
+		checkDeath();
+	}
+
+	public void checkDeath() {
+		if (dead == true) {
+			deadAnim++;
+			if (deadAnim >= deadTime/2 && deadAnim % 4 == 0 ) visible = !visible;
+			if (deadAnim >= deadTime) {
+				dead = false;
+				deadAnim = 0;
+				visible = true;
+				health = maxHealth;
+				level.gameOver();
+			}
+		}
+		
 	}
 
 	/**
@@ -135,33 +159,33 @@ public class Player extends Mob {
 		Projectile p = new FireballProjectile(x, y, dir, FireballSprite.fireballRed, 5);
 		if (!powered) {
 			if (sprites == PlayerSprite.playerCyan)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyan, 5);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyan, 7);
 			else if (sprites == PlayerSprite.playerBlack)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlack, 5);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlack, 10);
 			else if (sprites == PlayerSprite.playerPurple)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurple, 5);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurple, 15);
 			else if (sprites == PlayerSprite.playerOrange)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrange, 5);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrange, 17);
 			else if (sprites == PlayerSprite.playerBlue)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlue, 5);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlue, 20);
 			else if (sprites == PlayerSprite.playerGreen)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreen, 5);
-			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellow, 5);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreen, 25);
+			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellow, 30);
 		} else {
 			p = new FireballProjectile(x, y, dir, FireballSprite.fireballRedFull, 20);
 			if (sprites == PlayerSprite.playerCyan)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyanFull, 20);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballCyanFull, 25);
 			else if (sprites == PlayerSprite.playerBlack)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlackFull, 20);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlackFull, 30);
 			else if (sprites == PlayerSprite.playerPurple)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurpleFull, 20);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballPurpleFull, 35);
 			else if (sprites == PlayerSprite.playerOrange)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrangeFull, 20);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballOrangeFull, 40);
 			else if (sprites == PlayerSprite.playerBlue)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlueFull, 20);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballBlueFull, 50);
 			else if (sprites == PlayerSprite.playerGreen)
-				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreenFull, 20);
-			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellowFull, 20);
+				p = new FireballProjectile(x, y, dir, FireballSprite.fireballGreenFull, 55);
+			else if (sprites == PlayerSprite.playerYellow) p = new FireballProjectile(x, y, dir, FireballSprite.fireballYellowFull, 60);
 		}
 		level.addProjectile(p);
 	}
@@ -186,6 +210,7 @@ public class Player extends Mob {
 	 */
 	public void render(Screen screen) {
 		if (hidden) return;
+		if (!visible) return;
 
 		// Flip variable (0=none, 1=horizontal, 2=vertical, 3=both)
 		int flip = 0;
@@ -240,8 +265,14 @@ public class Player extends Mob {
 
 		// Render the player sprite
 		screen.renderPlayer(xx, yy, sprite, flip);
-
-		//showCollision(screen);
+		
+		// showCollision(screen);
+	}
+	
+	public void renderTop(Screen screen) {
+		if (hidden) return;
+		if (!visible) return;
+		healthBar.render(screen);
 	}
 
 	public void showCollision(Screen screen) {

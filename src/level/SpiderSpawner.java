@@ -29,12 +29,12 @@ public class SpiderSpawner extends EnemySpawner {
 
 			int xbound = level.getWidth() * 16;
 			int ybound = level.getHeight() * 16;
-			
+
 			while (level.getTile(x >> 4, y >> 4).solid() || level.getTile(x + width / 2 >> 4, y >> 4).solid() || level.getTile(x - width / 2 >> 4, y >> 4).solid() || level.getTile(x + width / 2 >> 4, y + height / 2 >> 4).solid() || level.getTile(x + width / 2 >> 4, y - height / 2 >> 4).solid() || level.getTile(x - width / 2 >> 4, y + height / 2 >> 4).solid() || level.getTile(x - width / 2 >> 4, y - height / 2 >> 4).solid() || level.getTile(x >> 4, y + height / 2 >> 4).solid() || level.getTile(x >> 4, y - height / 2 >> 4).solid()) {
 				x = (random.nextInt(xbound));
 				y = (random.nextInt(ybound));
 			}
-			System.out.println("New Spider: " + x + ", " + y + "   / " + xbound + ", " + ybound);
+			// System.out.println("New Spider: " + x + ", " + y + "   / " + xbound + ", " + ybound);
 			level.add(new Spider(x, y, new SpiderAI(level, null, game.getPlayer()), (Spider) mob));
 			anim = 0;
 		}

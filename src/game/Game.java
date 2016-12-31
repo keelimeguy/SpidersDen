@@ -11,9 +11,9 @@ import javax.swing.JFrame;
 import entity.mob.Mob;
 import entity.mob.Player;
 import entity.mob.Spider;
-import entity.ui.Border;
-import entity.ui.Menu;
 import entity.ui.TextField;
+import entity.ui.uicontrol.DialogueController;
+import entity.ui.uicontrol.MenuController;
 import graphics.Screen;
 import graphics.Sprite;
 import input.Keyboard;
@@ -29,21 +29,22 @@ import sound.SoundPlayer;
 public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	private static int width = 300;
-	private static int height = width / 16 * 9;
-	private static int scale = 3; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
-	private static String title = "2DGame";
+	public final static int width = 900 / 2;
+	public final static int height = width / 16 * 9;
+	public final static int scale = 2; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
+	public static String title = "Spider's Den";
 
 	private int anim = 0, speed = 20, step = 0;
 
 	private Thread thread;
 	private JFrame frame;
+	private DialogueController dialogueField;
 	private TextField textField;
-	private Menu menu;
+	private MenuController menuController;
 	private Keyboard key;
 	private Level level;
 	private Mob player;
-	private boolean running = false, paused = false, press = false;
+	private boolean running = false, paused = false;
 
 	private Screen screen;
 	private static MusicPlayer snd;
@@ -64,14 +65,13 @@ public class Game extends Canvas implements Runnable {
 		frame = new JFrame();
 		key = new Keyboard();
 		level = LevelData.fire;
+		level.init(this);
 
-		textField = new TextField(10, 3 * height / 4, new Sprite(1, 1, 0x88ff0000), new Border(width - 20, height / 4 - 10, new Sprite(1, 1, 0x88ffff00), new Sprite(1, 1, 0x88ffffff), new Sprite(1, 1, 0x8800ffff), new Sprite(1, 1, 0x8800ff00), 5));
-		textField.setText("First line test.\nSecond line test.\nThird line test.");
-		//textField.hide();
+		dialogueField = new DialogueController(0, 0, width, height);
+		dialogueField.setKeyboard(key);
 
-		String[] options = { "Option 1", "Option 2", "Option 3", "Option 4", "Option 5" };
-		menu = new Menu(width / 5, height / 7, new Sprite(1, 1, 0x88ff0000), new Border(3 * width / 5, 5 * height / 7, new Sprite(1, 1, 0x88ffff00), new Sprite(1, 1, 0x88ffffff), new Sprite(1, 1, 0x8800ffff), new Sprite(1, 1, 0x8800ff00), 5), options);
-		menu.hide();
+		menuController = new MenuController();
+		menuController.setKeyboard(key);
 
 		define();
 
@@ -88,8 +88,9 @@ public class Game extends Canvas implements Runnable {
 	private void define() {
 		player = new Player(3 << 4, 3 << 4, key);
 		level.empty();
-		level.addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(level, null, player)), level, 600));
+		level.addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(level, null, player)), level, 300));
 		player.init(level);
+		level.addPoints(-level.getScore());
 	}
 
 	/**
@@ -116,8 +117,16 @@ public class Game extends Canvas implements Runnable {
 		return player;
 	}
 
+	public MusicPlayer getSound() {
+		return snd;
+	}
+
 	public TextField getTextField() {
 		return textField;
+	}
+
+	public DialogueController getDialogueController() {
+		return dialogueField;
 	}
 
 	public boolean mouseInBounds(int x, int y, int sizeX, int sizeY) {
@@ -140,15 +149,31 @@ public class Game extends Canvas implements Runnable {
 	public synchronized void stop() {
 		running = false;
 		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		try {
+			snd.reset();
 			snd.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void pause(boolean paused) {
+		if (level.isGameOver()) {
+			this.paused = true;
+			return;
+		}
+		this.paused = paused;
+		if (!paused) {
+			dialogueField.sendDialogue("Score:\n" + level.getScore(), null);
+		}
+	}
+
+	public boolean isPaused() {
+		return paused;
 	}
 
 	/**
@@ -161,7 +186,7 @@ public class Game extends Canvas implements Runnable {
 		double delta = 0;
 		int frames = 0, updates = 0;
 
-		String audioFilePath = "/Res/Music/funky.wav";
+		String audioFilePath = "/Music/funky.wav";
 		snd.playMusic(audioFilePath, LoopStart.FUNKY, -1);
 
 		requestFocus();
@@ -172,8 +197,8 @@ public class Game extends Canvas implements Runnable {
 			delta += (now - lastTime) / ns;
 			lastTime = now;
 
-			// Limit delay recovery by half a second
-			if (delta > 30) delta = 30;
+			// Limit delay recovery to half a second
+			if (delta >= 30) delta = 30;
 
 			// Update 60 times a second
 			while (delta >= 1) {
@@ -208,23 +233,17 @@ public class Game extends Canvas implements Runnable {
 			anim = 0;
 
 		if (anim % speed == speed - 1) step++;
-		if (key.enter && !press) {
-			press = true;
-			if (!paused) {
-				paused = true;
-				textField.setText("Pause");
-				menu.show();
-			} else {
-				paused = false;
-				textField.setText("Unpause");
-				menu.hide();
-			}
-		} else if (!key.enter) press = false;
 
-		if (key.shift && step >= 1 && !paused) {
+		/*if (key.shift && step >= 1 && !paused) {
 			step = anim = 0;
 			define();
-		}
+		}*/
+
+		if (key.n1) level.setLight(0);
+		if (key.n2) level.setLight(1);
+		if (key.n3) level.setLight(2);
+		if (key.n4) level.setLight(3);
+		if (key.n5) level.setLight(4);
 
 		int xScroll = player.getX() - screen.getWidth() / 2;
 		int yScroll = player.getY() - screen.getHeight() / 2;
@@ -233,8 +252,8 @@ public class Game extends Canvas implements Runnable {
 			player.update(this);
 			level.update(xScroll, yScroll, this);
 		}
-		textField.update(this);
-		menu.update(this);
+		dialogueField.update(this);
+		menuController.update(this);
 	}
 
 	/**
@@ -262,9 +281,16 @@ public class Game extends Canvas implements Runnable {
 		player.render(screen);
 
 		level.renderTop(xScroll, yScroll, screen);
+		player.renderTop(screen);
 
-		textField.render(screen);
-		menu.render(screen);
+		if (Sprite.fogOfWar[level.getLight()] != null) screen.renderSpritePreserve(Sprite.fogOfWar[level.getLight()], player.getX() - Sprite.fogOfWar[level.getLight()].SIZE_X / (2 * scale), player.getY() - Sprite.fogOfWar[level.getLight()].SIZE_Y / (2 * scale));
+
+		screen.renderBoxFix(0, 0, width, height / 8, 0xff000000);
+		screen.renderBoxFix(0, 0, width / 8, height, 0xff000000);
+		screen.renderBoxFix(width - (int) (width / 8), 0, width / 8, height, 0xff000000);
+
+		dialogueField.render(screen);
+		menuController.render(screen);
 
 		// Copy the screen pixels to the image to be drawn
 		System.arraycopy(screen.getPixels(), 0, pixels, 0, pixels.length);

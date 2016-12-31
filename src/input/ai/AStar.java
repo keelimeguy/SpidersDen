@@ -2,9 +2,14 @@ package input.ai;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 
 public class AStar {
+	private static HashMap<int[][], HashMap<String, ArrayList<int[]>>> allPaths;
+	static {
+		allPaths = new HashMap<int[][], HashMap<String, ArrayList<int[]>>>();
+	}
 	public static final int DIAGONAL_COST = 14;
 	public static final int V_H_COST = 10;
 	private static int[][] oldBlocked;
@@ -130,6 +135,16 @@ public class AStar {
 	int[][] blocked = array containing inaccessible cell coordinates
 	*/
 	public static ArrayList<int[]> findPath(int width, int height, int startX, int startY, int endX, int endY, int[][] blocked, boolean cutCorners) {
+		HashMap<String, ArrayList<int[]>> map;
+		if (allPaths.containsKey(blocked)) {
+			map = allPaths.get(blocked);
+			if (map.containsKey(startX + " " + startY + " " + endX + " " + endY)) {
+				//System.out.println("REPEAT: " + startX + " " + startY + " " + endX + " " + endY);
+				return map.get(startX + " " + startY + " " + endX + " " + endY);
+			} //else System.out.println("NEW: " + startX + " " + startY + " " + endX + " " + endY);
+		} else
+			map = new HashMap<String, ArrayList<int[]>>();
+
 		boolean repeat = false;
 		if (blocked == oldBlocked)
 			repeat = true;
@@ -155,9 +170,9 @@ public class AStar {
 			for (int j = 0; j < height; ++j) {
 				if (!repeat || i == startX && j == startY) grid[i][j] = new Cell(i, j);
 				if (repeat && grid[i][j] != null || !repeat || i == startX && j == startY) grid[i][j].heuristicCost = Math.abs(i - endI) + Math.abs(j - endJ);
-				//System.out.print(grid[i][j].heuristicCost+" ");
+				// System.out.print(grid[i][j].heuristicCost+" ");
 			}
-			//System.out.println();
+			// System.out.println();
 		}
 
 		grid[startX][startY].finalCost = 0;
@@ -173,54 +188,55 @@ public class AStar {
 
 		if (!cutCorners && !repeat) adjustGridCorners(width, height);
 
-		//Display initial map
-		/*System.out.println("Grid: ");
-		for (int j = startY - 10; j < startY + 10; ++j) {
-			for (int i = startX - 10; i < startX + 10; ++i) {
-				if (i >= 0 && i < width && j >= 0 && j < height) {
-					if (i == startX && j == startY)
-						System.out.print("SO  "); //Source
-					else if (i == endX && j == endY)
-						System.out.print("DE  "); //Destination
-					else if (grid[i][j] != null)
-						System.out.printf("%-3d ", 0);
-					else
-						System.out.print("BL  ");
-				}
-			}
-			System.out.println();
-		}
-		System.out.println();
-		*/
+		// Display initial map
+		// System.out.println("Grid: ");
+		// for (int j = startY - 10; j < startY + 10; ++j) {
+		// 	for (int i = startX - 10; i < startX + 10; ++i) {
+		// 		if (i >= 0 && i < width && j >= 0 && j < height) {
+		// 			if (i == startX && j == startY)
+		// 				System.out.print("SO  "); //Source
+		// 			else if (i == endX && j == endY)
+		// 				System.out.print("DE  "); //Destination
+		// 			else if (grid[i][j] != null)
+		// 				System.out.printf("%-3d ", 0);
+		// 			else
+		// 				System.out.print("BL  ");
+		// 		}
+		// 	}
+		// 	System.out.println();
+		// }
+		// System.out.println();
+
 		AStar();
-		/*System.out.println("\nScores for cells: ");
-		for (int j = 0; j < height; ++j) {
-			for (int i = 0; i < width; ++i) {
-				if (grid[i][j] != null)
-					System.out.printf("%-3d ", grid[i][j].finalCost);
-				else
-					System.out.print("BL  ");
-			}
-			System.out.println();
-		}
-		System.out.println();
-		*/
+		// System.out.println("\nScores for cells: ");
+		// for (int j = 0; j < height; ++j) {
+		// 	for (int i = 0; i < width; ++i) {
+		// 		if (grid[i][j] != null)
+		// 			System.out.printf("%-3d ", grid[i][j].finalCost);
+		// 		else
+		// 			System.out.print("BL  ");
+		// 	}
+		// 	System.out.println();
+		// }
+		// System.out.println();
+
 		ArrayList<int[]> path = new ArrayList<int[]>();
-		if (endI >= 0 && endJ >= 0 && endI < closed.length && endJ < closed[0].length) if (closed[endI][endJ]) {
-			//Trace back the path 
-			//System.out.println("Path: ");
+		if (endI >= 0 && endJ >= 0 && endI < closed.length && endJ < closed[0].length && closed[endI][endJ]) {
+			// Trace back the path
+			// System.out.println("Path: ");
 			Cell current = grid[endI][endJ];
-			//System.out.print(current);
+			// System.out.print(current);
 			path.add(new int[] { current.i, current.j });
 			while (current.parent != null) {
-				//System.out.print(" <- " + current.parent);
+				// System.out.print(" <- " + current.parent);
 				path.add(new int[] { current.parent.i, current.parent.j });
 				current = current.parent;
 			}
-			//System.out.println();
+			// System.out.println();
 		} else
-			System.out.println("No possible path");
-
+			;// System.out.println("No possible path");
+		map.put(startX + " " + startY + " " + endX + " " + endY, path);
+		allPaths.put(oldBlocked, map);
 		return path;
 	}
 

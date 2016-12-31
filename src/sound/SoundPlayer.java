@@ -1,12 +1,5 @@
 package sound;
 
-/**
- *
- * @author Mangusbrother 
- * with edits by keelimeguy
- */
-
-import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
@@ -44,10 +37,9 @@ public class SoundPlayer extends Thread implements LineListener {
 	 * @param audioFilePath Path of the audio file.
 	 */
 	private void play(String audioFilePath) {
-		File audioFile = new File(audioFilePath);
 
 		try {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(getClass().getResource(audioFilePath));
 
 			AudioFormat format = audioStream.getFormat();
 
@@ -110,11 +102,11 @@ public class SoundPlayer extends Thread implements LineListener {
 		LineEvent.Type type = event.getType();
 
 		if (type == LineEvent.Type.START) {
-			System.out.println("Playback started.");
+			System.out.println("SoundPlayer playback started.");
 
 		} else if (type == LineEvent.Type.STOP) {
 			playCompleted = true;
-			System.out.println("Playback completed.");
+			System.out.println("SoundPlayer playback completed.");
 		}
 
 	}
