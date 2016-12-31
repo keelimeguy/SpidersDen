@@ -32,8 +32,7 @@ public class MusicPlayer extends Thread implements LineListener {
 
 	public void run() {
 		while (true)
-			if (playing)
-				play(path);
+			if (playing) play(path);
 	}
 
 	/**
@@ -55,15 +54,13 @@ public class MusicPlayer extends Thread implements LineListener {
 
 			audioClip.open(audioStream);
 
-			if (reset)
-				reset = false;
+			if (reset) reset = false;
 
 			if (looping) {
 				FloatControl gainControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
 				gainControl.setValue(-20.0f);
 				// System.out.println(start);
-				if (start != end)
-					audioClip.setLoopPoints(start, end);
+				if (start != end) audioClip.setLoopPoints(start, end);
 				// System.out.println(audioClip.getFrameLength());
 				audioClip.loop(Clip.LOOP_CONTINUOUSLY);
 			} else {
@@ -80,8 +77,7 @@ public class MusicPlayer extends Thread implements LineListener {
 				} catch (InterruptedException ex) {
 					ex.printStackTrace();
 				}
-				if (reset)
-					break;
+				if (reset) break;
 			}
 			if (playCompleted || reset) {
 				playing = false;
@@ -104,7 +100,7 @@ public class MusicPlayer extends Thread implements LineListener {
 		}
 
 	}
-	
+
 	public String getPath() {
 		return path;
 	}

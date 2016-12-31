@@ -1,8 +1,8 @@
 package input.ai;
 
+import entity.mob.Mob;
 import input.Keyboard;
 import level.Level;
-import entity.mob.Mob;
 
 public abstract class AI extends Keyboard {
 	protected Level level;
@@ -16,7 +16,7 @@ public abstract class AI extends Keyboard {
 	public Mob getTarget() {
 		return null;
 	}
-	
+
 	public void init(Mob master) {
 		this.master = master;
 	}

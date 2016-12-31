@@ -1,8 +1,8 @@
 package level;
 
+import entity.mob.Spider;
 import game.Game;
 import input.ai.SpiderAI;
-import entity.mob.Spider;
 
 public class SpiderSpawner extends EnemySpawner {
 
@@ -20,9 +20,6 @@ public class SpiderSpawner extends EnemySpawner {
 		if (anim % speed == speed - 1) {
 			int x = -1;
 			int y = -1;
-
-			int yOff = game.getPlayer().getY() - game.getScreen().getHeight() / 2;
-			int xOff = game.getPlayer().getX() - game.getScreen().getWidth() / 2;
 
 			int width = mob.getSprite().SIZE_X;
 			int height = mob.getSprite().SIZE_Y;

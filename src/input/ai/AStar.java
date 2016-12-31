@@ -66,7 +66,7 @@ public class AStar {
 		}
 	}
 
-	public static void AStar() {
+	public static void calculateAStar() {
 
 		//add the start location to open list.
 		if (grid[startI][startJ] == null) return;
@@ -207,7 +207,7 @@ public class AStar {
 		// }
 		// System.out.println();
 
-		AStar();
+		calculateAStar();
 		// System.out.println("\nScores for cells: ");
 		// for (int j = 0; j < height; ++j) {
 		// 	for (int i = 0; i < width; ++i) {

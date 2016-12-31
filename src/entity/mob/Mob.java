@@ -26,7 +26,7 @@ public abstract class Mob extends Entity {
 		animSpeed = mob.animSpeed;
 		this.test = mob.test;
 	}
-	
+
 	/**
 	 * Moves the player and updates its direction
 	 * @param dx : The change in x of the mob's location
@@ -139,7 +139,7 @@ public abstract class Mob extends Entity {
 	 * Determines if the mob will collide should it move in the given direction
 	 * @param dx : The change in x of the mob's location
 	 * @param dy : The change in y of the mob's location
-	 * @return 
+	 * @return
 	 * True if it will collide, false otherwise
 	 */
 	protected boolean collision(int dx, int dy) {

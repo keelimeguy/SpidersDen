@@ -1,11 +1,14 @@
 package level.tile;
 
+import java.awt.Rectangle;
+
 import graphics.Screen;
 import graphics.Sprite;
 
-import java.awt.Rectangle;
-
 public class Block extends Rectangle {
+
+	private static final long serialVersionUID = 1L;
+
 	public static Block voidTile = new BasicTile(Sprite.voidSprite, SolidType.FULL);
 
 	public int ResId = -1;

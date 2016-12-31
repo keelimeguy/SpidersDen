@@ -1,12 +1,12 @@
 package entity.projectile;
 
+import java.util.Random;
+
 import entity.Entity;
 import entity.mob.Mob;
 import game.Game;
 import graphics.Screen;
 import graphics.Sprite;
-
-import java.util.Random;
 
 public class FireballProjectile extends Projectile {
 

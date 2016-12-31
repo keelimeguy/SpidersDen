@@ -82,7 +82,7 @@ public class Level {
 	public void test() {
 		test = true;
 	}
-	
+
 	/**
 	 * Gets the projectile list for the level and returns it.
 	 * @return A List<Projectile> object, containing the projectiles that have been added into the level
@@ -433,7 +433,11 @@ public class Level {
 	 */
 	public void remove(Entity e) {
 		entities.remove(e);
+		if (e instanceof Spider) randomItem(e.getX(), e.getY());
 		e.remove();
+	}
+
+	public void randomItem(int x, int y) {
 	}
 
 	/**

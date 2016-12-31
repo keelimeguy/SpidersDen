@@ -1,11 +1,9 @@
 package entity.ui.uicontrol;
 
 import entity.Entity;
-import entity.ui.Border;
 import entity.ui.Menu;
 import game.Game;
 import graphics.Screen;
-import graphics.Sprite;
 import input.Keyboard;
 
 public class MenuController extends Entity {

@@ -2,9 +2,6 @@ package entity;
 
 import game.Game;
 import graphics.Screen;
-
-import java.util.Random;
-
 import level.Level;
 
 public abstract class Entity {

@@ -8,7 +8,6 @@ import java.awt.image.DataBufferInt;
 import javax.swing.JFrame;
 
 import entity.mob.Mob;
-import entity.mob.Player;
 import entity.mob.Spider;
 import entity.mob.test.SpiderTest;
 import entity.ui.TextField;
@@ -48,6 +47,7 @@ public class GameTest extends Game implements Runnable {
 
 	private Screen screen;
 	private static MusicPlayer snd;
+	@SuppressWarnings("unused")
 	private static SoundPlayer noise;
 
 	// The image which will be drawn in the game window

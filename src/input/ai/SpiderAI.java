@@ -2,10 +2,9 @@ package input.ai;
 
 import java.util.ArrayList;
 
+import entity.mob.Mob;
 import level.Level;
 import level.tile.SolidType;
-import entity.Entity;
-import entity.mob.Mob;
 
 public class SpiderAI extends ChaseAI {
 	protected int lasttx = -1, lastty = -1, lastmx = -1, lastmy = -1;

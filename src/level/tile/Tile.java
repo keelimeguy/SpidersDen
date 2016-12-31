@@ -5,6 +5,9 @@ import graphics.Sprite;
 import graphics.Tileset;
 
 public class Tile extends BasicTile {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Creates a new BasicTile.
 	 * @param sprite : The sprite of the tile.

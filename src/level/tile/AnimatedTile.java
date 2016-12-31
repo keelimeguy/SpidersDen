@@ -9,6 +9,7 @@ import graphics.Tileset;
  */
 public class AnimatedTile extends Tile {
 
+	private static final long serialVersionUID = 1L;
 	protected int curFrame = 0;
 	protected int[] solidType;
 	protected Sprite[] sprites;

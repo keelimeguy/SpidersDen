@@ -6,6 +6,7 @@ import graphics.Tileset;
 
 public class BasicTile extends Block {
 
+	private static final long serialVersionUID = 1L;
 	protected int solidType = SolidType.NONE;
 
 	/**

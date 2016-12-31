@@ -2,9 +2,8 @@ package input.ai;
 
 import java.util.ArrayList;
 
-import level.Level;
-import entity.Entity;
 import entity.mob.Mob;
+import level.Level;
 
 public abstract class ChaseAI extends AI {
 	protected Mob target;
@@ -18,7 +17,7 @@ public abstract class ChaseAI extends AI {
 	public Mob getTarget() {
 		return target;
 	}
-	
+
 	public void update() {
 		reset();
 		ArrayList<int[]> path = AStar.findPath(level.getWidth(), level.getHeight(), master.getX(), master.getY(), target.getX(), target.getY(), level.getCollidable(), true);

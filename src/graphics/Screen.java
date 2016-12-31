@@ -20,7 +20,6 @@ public class Screen {
 	private int[] imagePixels;
 
 	private int xOffset, yOffset;
-	private int topBand, leftBand, rightBand, bottomBand;
 
 	/**
 	 * Creates a screen of a given width and height
@@ -359,8 +358,8 @@ public class Screen {
 
 	public void renderBox(int xp, int yp, int width, int height, int color) {
 		// Updates the position given the screen offset
-				yp -= yOffset;
-				xp -= xOffset;
+		yp -= yOffset;
+		xp -= xOffset;
 
 		for (int y = 0; y < height * scale; y++) {
 			int ya = y + yp * scale;
@@ -372,7 +371,7 @@ public class Screen {
 			}
 		}
 	}
-	
+
 	public void renderBoxFix(int xp, int yp, int width, int height, int color) {
 		for (int y = 0; y < height * scale; y++) {
 			int ya = y + yp * scale;
@@ -431,7 +430,7 @@ public class Screen {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets the screen offset
 	 * @param xOffset : The x offset of the screen

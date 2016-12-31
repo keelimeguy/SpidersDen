@@ -1,6 +1,8 @@
 package entity.mob.test;
 
-import level.tile.SolidType;
+import entity.mob.Mob;
+import entity.projectile.FireballProjectile;
+import entity.projectile.Projectile;
 import game.Game;
 import graphics.EnemySprite;
 import graphics.FireballSprite;
@@ -8,9 +10,7 @@ import graphics.Screen;
 import graphics.Sprite;
 import input.Keyboard;
 import input.Mouse;
-import entity.mob.Mob;
-import entity.projectile.FireballProjectile;
-import entity.projectile.Projectile;
+import level.tile.SolidType;
 
 public class BrainBeastTest extends Mob {
 
@@ -18,7 +18,7 @@ public class BrainBeastTest extends Mob {
 	private Sprite sprite;
 	private Sprite[][] sprites;
 	private int anim = 0;
-	private boolean walking = false, spaceFree = false;
+	private boolean walking = false;
 
 	private int fireRate = 0;
 	Projectile p;
@@ -63,7 +63,8 @@ public class BrainBeastTest extends Mob {
 		if (input.left) dx--;
 		if (input.right) dx++;
 
-		if (anim % 24 == 23) spaceFree = true;
+		if (anim % 24 == 23) {
+		}
 
 		// Move the player if its position will change, set walking flag accordingly
 		if (dx != 0 || dy != 0) {

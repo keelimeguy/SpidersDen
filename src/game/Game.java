@@ -34,7 +34,7 @@ public class Game extends Canvas implements Runnable {
 	public final static int scale = 2; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
 	public static String title = "Spider's Den";
 
-	private int anim = 0, speed = 20, step = 0;
+	private int anim = 0, speed = 20;
 
 	private Thread thread;
 	private JFrame frame;
@@ -48,8 +48,6 @@ public class Game extends Canvas implements Runnable {
 
 	private Screen screen;
 	private static MusicPlayer snd;
-	private static SoundPlayer noise;
-
 	// The image which will be drawn in the game window
 	private BufferedImage image = new BufferedImage(width * scale, height * scale, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -75,7 +73,7 @@ public class Game extends Canvas implements Runnable {
 		define();
 
 		snd = new MusicPlayer();
-		noise = new SoundPlayer();
+		new SoundPlayer();
 
 		addKeyListener(key);
 
@@ -232,7 +230,8 @@ public class Game extends Canvas implements Runnable {
 		else
 			anim = 0;
 
-		if (anim % speed == speed - 1) step++;
+		if (anim % speed == speed - 1) {
+		}
 
 		/*if (key.shift && step >= 1 && !paused) {
 			step = anim = 0;

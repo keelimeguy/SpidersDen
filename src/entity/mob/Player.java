@@ -127,7 +127,7 @@ public class Player extends Mob {
 	public void checkDeath() {
 		if (dead == true) {
 			deadAnim++;
-			if (deadAnim >= deadTime/2 && deadAnim % 4 == 0 ) visible = !visible;
+			if (deadAnim >= deadTime / 2 && deadAnim % 4 == 0) visible = !visible;
 			if (deadAnim >= deadTime) {
 				dead = false;
 				deadAnim = 0;
@@ -136,7 +136,7 @@ public class Player extends Mob {
 				level.gameOver(!test);
 			}
 		}
-		
+
 	}
 
 	/**
@@ -265,10 +265,10 @@ public class Player extends Mob {
 
 		// Render the player sprite
 		screen.renderPlayer(xx, yy, sprite, flip);
-		
+
 		if (test) showCollision(screen);
 	}
-	
+
 	public void renderTop(Screen screen) {
 		if (hidden) return;
 		if (!visible) return;
