@@ -24,8 +24,9 @@ public abstract class Mob extends Entity {
 		maxHealth = mob.maxHealth;
 		moveSpeed = mob.moveSpeed;
 		animSpeed = mob.animSpeed;
+		this.test = mob.test;
 	}
-
+	
 	/**
 	 * Moves the player and updates its direction
 	 * @param dx : The change in x of the mob's location
@@ -120,18 +121,18 @@ public abstract class Mob extends Entity {
 		if (c < 2)
 			return ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) >> 4;
 		else if (xOff <= 0)
-			return ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) >> 4;
+			return ((x + dx) + (((c - 2) % 2) == 0 ? 1 : 0) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) >> 4;
 		else
-			return ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) >> 4;
+			return ((x + dx) + (((c - 2) % 2) == 0 ? 1 : 0) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) >> 4;
 	}
 
 	public int getEdgePinY(int c, int dy, int yOff, boolean mirror) {
 		if (c >= 2)
 			return ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) >> 4;
 		else if (yOff <= 0)
-			return ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) >> 4;
+			return ((y + dy) + ((((c % 2) + 1) % 2) == 0 ? 1 : 0) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) >> 4;
 		else
-			return ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) >> 4;
+			return ((y + dy) + ((((c % 2) + 1) % 2) == 0 ? 1 : 0) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) >> 4;
 	}
 
 	/**

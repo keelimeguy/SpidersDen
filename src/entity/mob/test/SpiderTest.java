@@ -1,5 +1,6 @@
 package entity.mob.test;
 
+import entity.Entity;
 import entity.mob.Mob;
 import entity.projectile.FireballProjectile;
 import entity.projectile.Projectile;
@@ -9,12 +10,13 @@ import graphics.FireballSprite;
 import graphics.Screen;
 import graphics.SpiderSprite;
 import graphics.Sprite;
+import input.Keyboard;
 import input.Mouse;
 import input.ai.AI;
 import level.tile.SolidType;
 
 public class SpiderTest extends Mob {
-	private AI input;
+	private Keyboard input;
 	private Sprite[][] sprites;
 	private StatusBar healthBar;
 	private int anim = 0, deadAnim = 0, deadTime = 180, attackingSpeed = 1, dyingSpeed = 1, damage = 10;
@@ -29,8 +31,7 @@ public class SpiderTest extends Mob {
 	 * @param y : The starting y coordinate (in pixel units)
 	 * @param input : The Keyboard controller for this Spider
 	 */
-	public SpiderTest(int x, int y, AI input) {
-		input.init(this);
+	public SpiderTest(int x, int y, Keyboard input) {
 		this.x = x;
 		this.y = y;
 		this.input = input;
@@ -40,7 +41,7 @@ public class SpiderTest extends Mob {
 		animSpeed = 4;
 		attackingSpeed = 6;
 		dyingSpeed = 10;
-		moveSpeed = 1;
+		moveSpeed = 2;
 		dead = false;
 		maxHealth = 100;
 		health = maxHealth;
@@ -58,7 +59,7 @@ public class SpiderTest extends Mob {
 		animSpeed = 4;
 		attackingSpeed = 6;
 		dyingSpeed = 10;
-		moveSpeed = 1;
+		moveSpeed = 2;
 		dead = false;
 		maxHealth = 100;
 		health = maxHealth;
@@ -221,7 +222,7 @@ public class SpiderTest extends Mob {
 	private void updateShooting(int width, int height) {
 
 		// Shoot when mouse clicks
-		if (input.q && fireRate <= 0) {
+		if (Mouse.getB() == 1 && fireRate <= 0) {
 			double dx = Mouse.getX() - (width / 2);
 			double dy = Mouse.getY() - (height / 2);
 			double dir = Math.atan2(dy, dx);
@@ -271,19 +272,19 @@ public class SpiderTest extends Mob {
 					sprite = sprites[0][8];
 					if (!attacked) {
 						attacked = true;
-						Mob target = input.getTarget();
-						if (target != null) for (int c = 0; c < 4; c++) {
-							int xt = target.getCornerPinX(c, 0, 0, false);
-							int yt = target.getCornerPinY(c, 0, 0, false);
-							int xxt = target.getEdgePinX(c, 0, 0, false);
-							int yyt = target.getEdgePinY(c, 0, 0, false);
-							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
-								target.hit(damage);
-								break;
+						for (Entity target : level.getEntities())
+							if (target instanceof Mob && ((Mob) target).isSolid()) for (int c = 0; c < 4; c++) {
+								int xt = ((Mob) target).getCornerPinX(c, 0, 0, false);
+								int yt = ((Mob) target).getCornerPinY(c, 0, 0, false);
+								int xxt = ((Mob) target).getEdgePinX(c, 0, 0, false);
+								int yyt = ((Mob) target).getEdgePinY(c, 0, 0, false);
+								if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+									((Mob) target).hit(damage);
+									break;
+								}
 							}
-						}
 					}
 				} else {
 					sprite = sprites[0][2];
@@ -334,19 +335,19 @@ public class SpiderTest extends Mob {
 					sprite = sprites[2][8];
 					if (!attacked) {
 						attacked = true;
-						Mob target = input.getTarget();
-						if (target != null) for (int c = 0; c < 4; c++) {
-							int xt = target.getCornerPinX(c, 0, 0, false);
-							int yt = target.getCornerPinY(c, 0, 0, false);
-							int xxt = target.getEdgePinX(c, 0, 0, false);
-							int yyt = target.getEdgePinY(c, 0, 0, false);
-							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
-								target.hit(damage);
-								break;
+						for (Entity target : level.getEntities())
+							if (target instanceof Mob && ((Mob) target).isSolid()) for (int c = 0; c < 4; c++) {
+								int xt = ((Mob) target).getCornerPinX(c, 0, 0, false);
+								int yt = ((Mob) target).getCornerPinY(c, 0, 0, false);
+								int xxt = ((Mob) target).getEdgePinX(c, 0, 0, false);
+								int yyt = ((Mob) target).getEdgePinY(c, 0, 0, false);
+								if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+									((Mob) target).hit(damage);
+									break;
+								}
 							}
-						}
 					}
 				} else {
 					sprite = sprites[2][2];
@@ -397,19 +398,19 @@ public class SpiderTest extends Mob {
 					sprite = sprites[3][8];
 					if (!attacked) {
 						attacked = true;
-						Mob target = input.getTarget();
-						if (target != null) for (int c = 0; c < 4; c++) {
-							int xt = target.getCornerPinX(c, 0, 0, false);
-							int yt = target.getCornerPinY(c, 0, 0, false);
-							int xxt = target.getEdgePinX(c, 0, 0, false);
-							int yyt = target.getEdgePinY(c, 0, 0, false);
-							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
-								target.hit(damage);
-								break;
+						for (Entity target : level.getEntities())
+							if (target instanceof Mob && ((Mob) target).isSolid()) for (int c = 0; c < 4; c++) {
+								int xt = ((Mob) target).getCornerPinX(c, 0, 0, false);
+								int yt = ((Mob) target).getCornerPinY(c, 0, 0, false);
+								int xxt = ((Mob) target).getEdgePinX(c, 0, 0, false);
+								int yyt = ((Mob) target).getEdgePinY(c, 0, 0, false);
+								if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+									((Mob) target).hit(damage);
+									break;
+								}
 							}
-						}
 					}
 				} else {
 					sprite = sprites[3][2];
@@ -460,19 +461,19 @@ public class SpiderTest extends Mob {
 					sprite = sprites[1][8];
 					if (!attacked) {
 						attacked = true;
-						Mob target = input.getTarget();
-						if (target != null) for (int c = 0; c < 4; c++) {
-							int xt = target.getCornerPinX(c, 0, 0, false);
-							int yt = target.getCornerPinY(c, 0, 0, false);
-							int xxt = target.getEdgePinX(c, 0, 0, false);
-							int yyt = target.getEdgePinY(c, 0, 0, false);
-							if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
-									|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
-								target.hit(damage);
-								break;
+						for (Entity target : level.getEntities())
+							if (target instanceof Mob && ((Mob) target).isSolid()) for (int c = 0; c < 4; c++) {
+								int xt = ((Mob) target).getCornerPinX(c, 0, 0, false);
+								int yt = ((Mob) target).getCornerPinY(c, 0, 0, false);
+								int xxt = ((Mob) target).getEdgePinX(c, 0, 0, false);
+								int yyt = ((Mob) target).getEdgePinY(c, 0, 0, false);
+								if (level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y + 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x) >> 4, ((int) y - 16) >> 4)) || level.getTile(xt, yt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x + 16) >> 4, ((int) y - 16) >> 4))
+										|| level.getTile(xt, yt).equals(level.getTile(((int) x - 16) >> 4, ((int) y) >> 4 + 16)) || level.getTile(xxt, yyt).equals(level.getTile(((int) x - 16) >> 4, ((int) y + 16) >> 4))) {
+									((Mob) target).hit(damage);
+									break;
+								}
 							}
-						}
 					}
 				} else {
 					sprite = sprites[1][2];
@@ -503,7 +504,7 @@ public class SpiderTest extends Mob {
 		screen.renderPlayer(xx, yy, sprite, flip);
 		healthBar.render(screen);
 
-		showCollision(screen);
+		if (test) showCollision(screen);
 	}
 
 	public void showCollision(Screen screen) {
@@ -519,29 +520,29 @@ public class SpiderTest extends Mob {
 				if (xOff <= 0) {
 					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? (((c % 2) + 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + (c / 2) * (sprite.SIZE_Y / 2 - yOff) - sprite.SIZE_Y / 4 + (mirror && c < 2 ? yOff : 0)) - screen.getYOffset());
 					if (c < 2)
-						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + ((((c % 2) + 1) % 2) == 0 ? 1 : 0) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (((c - 2) % 2) == 0 ? 1 : 0) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 				} else {
 					if (c < 2)
-						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + ((((c % 2) + 1) % 2) == 0 ? 1 : 0) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (c % 2) * yOff + (mirror ? ((c + 1) % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (((c - 2) % 2) == 0 ? 1 : 0) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 - (mirror ? xOff : 0)) - sprite.SIZE_X / 4 + (((c % 2) + 1) % 2) * xOff) - screen.getXOffset(), ((y + dy) + (c / 2) * (sprite.SIZE_Y / 2 - yOff) - sprite.SIZE_Y / 4 + (mirror && c < 2 ? yOff : 0)) - screen.getYOffset());
 				}
 			} else {
 				if (xOff <= 0) {
 					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? (((c % 2) + 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + (c / 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (((c / 2) + 1) % 2) * yOff + (mirror ? (((c / 2)) % 2) * yOff : 0)) - screen.getYOffset());
 					if (c < 2)
-						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + ((((c % 2) + 1) % 2) == 0 ? 1 : 0) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (((c - 2) % 2) == 0 ? 1 : 0) * (sprite.SIZE_X / 2 + xOff) - sprite.SIZE_X / 4 - (mirror ? ((c - 2) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 				} else {
 					screen.setPixelScale(0xff0000ff, ((x + dx) + (c % 2) * (sprite.SIZE_X / 2 - (mirror ? xOff : 0)) - sprite.SIZE_X / 4 + (((c % 2) + 1) % 2) * xOff) - screen.getXOffset(), ((y + dy) + (c / 2) * sprite.SIZE_Y / 2 - sprite.SIZE_Y / 4 - (((c / 2) + 1) % 2) * yOff + (mirror ? (((c / 2)) % 2) * yOff : 0)) - screen.getYOffset());
 					if (c < 2)
-						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + (int) Math.pow(0, ((int) ((c % 2) + 1)) % 2) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + xOff / 2 - (mirror ? xOff / 2 : 0)) - screen.getXOffset(), ((y + dy) + ((((c % 2) + 1) % 2) == 0 ? 1 : 0) * sprite.SIZE_Y / 2 - (((c % 2) + 1) % 2) * yOff - sprite.SIZE_Y / 4 + (mirror ? (c % 2) * yOff : 0)) - screen.getYOffset());
 					else
-						screen.setPixelScale(0xff00ffff, ((x + dx) + (int) Math.pow(0, (int) ((c - 2) % 2)) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
+						screen.setPixelScale(0xff00ffff, ((x + dx) + (((c - 2) % 2) == 0 ? 1 : 0) * sprite.SIZE_X / 2 + ((c - 2) % 2) * xOff - sprite.SIZE_X / 4 - (mirror ? ((c - 1) % 2) * xOff : 0)) - screen.getXOffset(), ((y + dy) + sprite.SIZE_Y / 2 - sprite.SIZE_Y / 2 - yOff / 2 + (mirror ? yOff / 2 : 0)) - screen.getYOffset());
 				}
 			}
 		}

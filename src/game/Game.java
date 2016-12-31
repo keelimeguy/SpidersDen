@@ -65,7 +65,6 @@ public class Game extends Canvas implements Runnable {
 		frame = new JFrame();
 		key = new Keyboard();
 		level = LevelData.fire;
-		level.init(this);
 
 		dialogueField = new DialogueController(0, 0, width, height);
 		dialogueField.setKeyboard(key);
@@ -90,6 +89,7 @@ public class Game extends Canvas implements Runnable {
 		level.empty();
 		level.addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(level, null, player)), level, 300));
 		player.init(level);
+		level.init(this);
 		level.addPoints(-level.getScore());
 	}
 

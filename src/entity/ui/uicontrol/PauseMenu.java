@@ -31,13 +31,13 @@ public class PauseMenu extends Menu {
 				game.getSound().playMusic("/Music/child.wav", LoopStart.CHILD, -1);
 			} else if (game.getSound().getPath().equals("/Music/child.wav")) {
 				game.getSound().reset();
-				game.getSound().playMusic("/Music/varied_funky.wav", 0, -1);
+				game.getSound().playMusic("/Music/varied_funky.wav", LoopStart.VARIED_FUNKY, -1);
 			} else if (game.getSound().getPath().equals("/Music/varied_funky.wav")) {
 				game.getSound().reset();
-				game.getSound().playMusic("/Music/spooky.wav", 0, -1);
+				game.getSound().playMusic("/Music/spooky.wav", LoopStart.SPOOKY, -1);
 			} else if (game.getSound().getPath().equals("/Music/spooky.wav")) {
 				game.getSound().reset();
-				game.getSound().playMusic("/Music/funky.wav", 0, -1);
+				game.getSound().playMusic("/Music/funky.wav", LoopStart.FUNKY, -1);
 			}
 		} else if (option.equals("Quit")) {
 			System.exit(0);

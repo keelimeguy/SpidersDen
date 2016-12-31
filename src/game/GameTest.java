@@ -1,6 +1,5 @@
 package game;
 
-import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -11,6 +10,7 @@ import javax.swing.JFrame;
 import entity.mob.Mob;
 import entity.mob.Player;
 import entity.mob.Spider;
+import entity.mob.test.SpiderTest;
 import entity.ui.TextField;
 import entity.ui.uicontrol.DialogueController;
 import entity.ui.uicontrol.MenuController;
@@ -21,6 +21,7 @@ import input.Mouse;
 import input.ai.SpiderAI;
 import level.Level;
 import level.LevelData;
+import level.SpiderSpawner;
 import sound.LoopStart;
 import sound.MusicPlayer;
 import sound.SoundPlayer;
@@ -64,7 +65,6 @@ public class GameTest extends Game implements Runnable {
 		frame = new JFrame();
 		key = new Keyboard();
 		level = LevelData.fire;
-		level.init(this);
 
 		dialogueField = new DialogueController(0, 0, width, height);
 		dialogueField.setKeyboard(key);
@@ -85,10 +85,15 @@ public class GameTest extends Game implements Runnable {
 	}
 
 	private void define() {
-		player = new Player(3 << 4, 3 << 4, key);
+		player = new SpiderTest(3 << 4, 3 << 4, key);
+		// player = new Player(3 << 4, 3 << 4, key);
 		level.empty();
+		// level.add(new Spider(8 << 4, 7 << 4, new SpiderAI(level, null, player), true));
+		level.addEnemySpawner(new SpiderSpawner(new Spider(0, 0, new SpiderAI(level, null, player), true), level, 300));
 		player.init(level);
-		level.add(new Spider(8 << 4, 7 << 4, new SpiderAI(level, null, player)));
+		player.test();
+		level.init(this);
+		level.test();
 		level.addPoints(-level.getScore());
 	}
 

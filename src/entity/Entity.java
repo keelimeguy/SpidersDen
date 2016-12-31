@@ -10,8 +10,12 @@ import level.Level;
 public abstract class Entity {
 
 	protected int x, y;
-	protected boolean removed = false, hidden = false, visible = true;
+	protected boolean removed = false, hidden = false, visible = true, test = false;
 	protected Level level;
+
+	public void test() {
+		test = true;
+	}
 
 	public void update(Game game) {
 		if (hidden) return;
@@ -21,7 +25,7 @@ public abstract class Entity {
 		if (hidden) return;
 		if (!visible) return;
 	}
-	
+
 	public void renderTop(Screen screen) {
 		if (hidden) return;
 		if (!visible) return;
@@ -60,7 +64,7 @@ public abstract class Entity {
 		hidden = true;
 		visible = false;
 	}
-	
+
 	public void turnInvisbile() {
 		visible = false;
 	}

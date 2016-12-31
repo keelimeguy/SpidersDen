@@ -90,8 +90,8 @@ public class FireballProjectile extends Projectile {
 
 	protected boolean collision(int dx, int dy) {
 		for (Entity e : level.getEntities())
-			if (((Mob) e).isSolid()) {
-				if (e instanceof Mob) for (int c = 0; c < 4; c++) {
+			if (e instanceof Mob && ((Mob) e).isSolid()) {
+				for (int c = 0; c < 4; c++) {
 					int xt = ((Mob) e).getCornerPinX(c, 0, 0, false);
 					int yt = ((Mob) e).getCornerPinY(c, 0, 0, false);
 					int xxt = ((Mob) e).getEdgePinX(c, 0, 0, false);
