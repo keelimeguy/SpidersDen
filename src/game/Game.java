@@ -34,7 +34,7 @@ public class Game extends Canvas implements Runnable {
 	public final static int scale = 2; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
 	public static String title = "Spider's Den";
 
-	private int anim = 0, speed = 20;//, step = 0;
+	private int anim = 0;//, speed = 20, step = 0;
 
 	private Thread thread;
 	private JFrame frame;
