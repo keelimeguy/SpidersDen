@@ -31,7 +31,7 @@ public class Game extends Canvas implements Runnable {
 
 	public final static int width = 900 / 2;
 	public final static int height = width / 16 * 9;
-	public final static int scale = 2; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
+	public final static int scale = 1; // The game will be scaled up by this factor, so the actual window width and height will be the above values times this value
 	public static String title = "Spider's Den";
 
 	private int anim = 0;//, speed = 20, step = 0;
@@ -58,7 +58,7 @@ public class Game extends Canvas implements Runnable {
 	 * Initiates the necessary variables of the game
 	 */
 	public Game() {
-		Dimension size = new Dimension(width * scale, height * scale);
+		Dimension size = new Dimension(900, 900 / 16 * 9);
 		setPreferredSize(size);
 
 		screen = new Screen(width, height, scale);
@@ -233,7 +233,7 @@ public class Game extends Canvas implements Runnable {
 			anim = 0;
 
 		/*if (anim % speed == speed - 1) step++;
-
+		
 		if (key.shift && step >= 1 && !paused) {
 			step = anim = 0;
 			define();

@@ -273,7 +273,7 @@ public class Screen {
 
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		Font font = FontLibrary.getFont(fontName);
-		font = font.deriveFont(size);
+		font = font.deriveFont(size * scale / 2);
 		g.setFont(font);
 		g.setColor(new Color(color));
 
@@ -292,7 +292,7 @@ public class Screen {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		Font font = FontLibrary.getFont(fontName);
-		font = font.deriveFont(size);
+		font = font.deriveFont(size * scale / 2);
 
 		g.setFont(font);
 		g.setColor(new Color(color));
@@ -315,7 +315,7 @@ public class Screen {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		Font font = FontLibrary.getFont(fontName);
-		font = font.deriveFont(size);
+		font = font.deriveFont(size * scale / 2);
 
 		FontMetrics metrics = g.getFontMetrics(font);
 		int x = xp * scale + (width * scale - metrics.stringWidth(text)) / 2;
@@ -340,7 +340,7 @@ public class Screen {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		Font font = FontLibrary.getFont(fontName);
-		font = font.deriveFont(size);
+		font = font.deriveFont(size * scale / 2);
 
 		FontMetrics metrics = g.getFontMetrics(font);
 		int x = xp * scale + (width * scale - metrics.stringWidth(text)) / 2;

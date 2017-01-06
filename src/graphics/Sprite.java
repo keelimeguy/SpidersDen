@@ -23,7 +23,7 @@ public class Sprite {
 	public static Sprite[] fogOfWar;
 	static {
 		Sprite fogOfWarBase = new Sprite(1000, 500, "/Sprites/fog_of_war.png");
-		Sprite s1 = new Sprite(1024, 512, fogOfWarBase).cropToFit(true);
+		Sprite s1 = new Sprite(1024 * Game.scale / 2, 512 * Game.scale / 2, fogOfWarBase).cropToFit(true);
 		Sprite s2 = new Sprite(Game.width * Game.scale * 2, Game.height * Game.scale * 2, s1).cropToFit(true);
 		Sprite s3 = new Sprite(Game.width * Game.scale * 2, Game.height * Game.scale * 2, s2).cropToFit(true);
 		Sprite s4 = new Sprite(Game.width * Game.scale * 2, Game.height * Game.scale * 2, s3).cropToFit(true);
