@@ -8,6 +8,8 @@ public class Mouse implements MouseListener, MouseMotionListener {
 
 	private static int mouseX = -1, mouseY = -1;
 	private static int mouseB = -1;
+	private static MouseEvent clickEvent = null;
+	private static boolean newValid = false;
 
 	public static int getX() {
 		return mouseX;
@@ -21,6 +23,16 @@ public class Mouse implements MouseListener, MouseMotionListener {
 		return mouseB;
 	}
 
+	public static MouseEvent getEvent() {
+		newValid = false;
+		return clickEvent;
+	}
+
+	public static void clearEvent() {
+		if (!newValid)
+			clickEvent = null;
+	}
+
 	public void mouseDragged(MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
@@ -32,6 +44,8 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
+		clickEvent = e;
+		newValid = true;
 	}
 
 	public void mouseEntered(MouseEvent e) {

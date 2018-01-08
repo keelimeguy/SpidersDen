@@ -23,7 +23,7 @@ public class InventoryMenu extends Menu {
 		if (hidden) return;
 		super.update(game);
 	}
-	
+
 	public void render(Screen screen) {
 		if (hidden) return;
 		if (!visible) return;

@@ -17,6 +17,7 @@ import entity.ui.uicontrol.MenuController;
 import graphics.Screen;
 import graphics.Sprite;
 import input.Keyboard;
+import java.awt.event.MouseEvent;
 import input.Mouse;
 import input.ai.SpiderAI;
 import level.Level;
@@ -131,6 +132,10 @@ public class Game extends Canvas implements Runnable {
 
 	public boolean mouseInBounds(int x, int y, int sizeX, int sizeY) {
 		return Mouse.getX() / screen.getScale() > x * getWindowWidth() / (screen.getWidth() * screen.getScale()) && Mouse.getX() / screen.getScale() < (sizeX + x) * getWindowWidth() / (screen.getWidth() * screen.getScale()) && Mouse.getY() / screen.getScale() > y * getWindowHeight() / (screen.getHeight() * screen.getScale()) && Mouse.getY() / screen.getScale() < (sizeY + y) * getWindowHeight() / (screen.getHeight() * screen.getScale());
+	}
+
+	public boolean mouseEventInBounds(int x, int y, int sizeX, int sizeY, MouseEvent e) {
+		return e.getX() / screen.getScale() > x * getWindowWidth() / (screen.getWidth() * screen.getScale()) && e.getX() / screen.getScale() < (sizeX + x) * getWindowWidth() / (screen.getWidth() * screen.getScale()) && e.getY() / screen.getScale() > y * getWindowHeight() / (screen.getHeight() * screen.getScale()) && e.getY() / screen.getScale() < (sizeY + y) * getWindowHeight() / (screen.getHeight() * screen.getScale());
 	}
 
 	/**

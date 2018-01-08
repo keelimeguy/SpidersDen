@@ -10,6 +10,7 @@ import graphics.Screen;
 import graphics.Sprite;
 import input.Keyboard;
 import input.Mouse;
+import java.awt.event.MouseEvent;
 import level.tile.SolidType;
 
 public class Player extends Mob {
@@ -196,9 +197,19 @@ public class Player extends Mob {
 	private void updateShooting(int width, int height) {
 
 		// Shoot when mouse clicks
-		if (Mouse.getB() == 1 && fireRate <= 0) {
-			double dx = Mouse.getX() - (width / 2);
-			double dy = Mouse.getY() - (height / 2);
+		int flag = 0;
+		MouseEvent e = Mouse.getEvent();
+		if (((Mouse.getB() > 0 && ++flag>0) || (e!=null && e.getButton() > 0)) && fireRate <= 0) {
+			Mouse.clearEvent();
+			double dx = -(width / 2);
+			double dy = -(height / 2);
+			if (flag>0) {
+				dx += Mouse.getX();
+				dy += Mouse.getY();
+			} else {
+				dx += e.getX();
+				dy += e.getY();
+			}
 			double dir = Math.atan2(dy, dx);
 			shoot(x, y, dir);
 			fireRate = FireballProjectile.FIRE_RATE;

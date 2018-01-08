@@ -1,5 +1,6 @@
 package entity.ui;
 
+import java.awt.event.MouseEvent;
 import game.Game;
 import graphics.Screen;
 import graphics.Sprite;
@@ -48,7 +49,13 @@ public class MenuElement extends TextField {
 	public void update(Game game) {
 		if (hidden) return;
 		super.update(game);
-		if (game.mouseInBounds(x + borderLeftWidth, y + borderTopWidth, sprite.SIZE_X, sprite.SIZE_Y)) {
+		MouseEvent e = Mouse.getEvent();
+		if (e != null && game.mouseEventInBounds(x + borderLeftWidth, this.y + borderTopWidth, sprite.SIZE_X, sprite.SIZE_Y, e)) {
+			Mouse.clearEvent();
+			click(game);
+			clicked = false;
+			press = false;
+		} else if (game.mouseInBounds(x + borderLeftWidth, y + borderTopWidth, sprite.SIZE_X, sprite.SIZE_Y)) {
 			hover = true;
 			if (Mouse.getB() == 1 && clickable && !press) {
 				clicked = true;
@@ -65,11 +72,13 @@ public class MenuElement extends TextField {
 			hover = false;
 			if (sprite == clickSprite) sprite = baseSprite;
 		}
-		if (Mouse.getB() == -1) {
-			clicked = false;
-			press = false;
-		} else
-			press = true;
+		if (e == null) {
+			if (Mouse.getB() == -1) {
+				clicked = false;
+				press = false;
+			} else
+				press = true;
+		}
 
 		if (hover) {
 			color = hoverColor;
